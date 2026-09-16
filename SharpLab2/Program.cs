@@ -1,50 +1,59 @@
-using System.Data;
 using System.Text;
-using SharpLab2;
+using SharpLab2.Data;
+using SharpLab2.Services;
 
 Console.OutputEncoding = Encoding.UTF8;
 
-Database.Initialize();
+using var context = new AppDbContext();
 
+var databaseInitializer = new DatabaseInitializer(context);
+databaseInitializer.Initialize();
+
+var ticketService = new TicketService(context);
+
+// 1. Інформація про всі зарезервовані квитки (14 обов'язкових пунктів)
 Console.WriteLine("=== СПИСОК РЕЗЕРВУВАННЯ КВИТКІВ ===");
-DataTable tickets = Database.GetTickets();
-foreach (DataRow row in tickets.Rows)
+var tickets = ticketService.GetAllTickets();
+foreach (var t in tickets)
 {
-    Console.WriteLine($"\nКвиток #{row["Id"]}:");
-    Console.WriteLine($"1) ПІБ пасажира:\t{row["FullName"]}");
-    Console.WriteLine($"2) Домашня адреса:\t{row["Address"]}");
-    Console.WriteLine($"3) Телефон:\t\t{row["Phone"]}");
-    Console.WriteLine($"4) Номер поїзда:\t{row["TrainNumber"]}");
-    Console.WriteLine($"5) Тип поїзда:\t\t{row["TrainType"]}");
-    Console.WriteLine($"6) Номер вагона:\t{row["CarriageNumber"]}");
-    Console.WriteLine($"7) Тип вагона:\t\t{row["CarriageType"]}");
-    Console.WriteLine($"8) Дата відправлення:\t{row["DepartureDate"]}");
-    Console.WriteLine($"9) Час відправлення/прибуття:\t{row["DepartureTime"]} / {row["ArrivalTime"]}");
-    Console.WriteLine($"10) Пункт призначення:\t{row["Destination"]}");
-    Console.WriteLine($"11) Відстань:\t\t{row["DistanceKm"]} км");
-    Console.WriteLine($"12) Вартість проїзду:\t{row["BaseFare"]} грн");
-    Console.WriteLine($"13) Доплата за терміновість:\t{row["UrgencySurcharge"]} грн");
-    Console.WriteLine($"14) Доплата за тип вагона:\t{row["CarriageSurcharge"]} грн");
-    Console.WriteLine($"Разом до сплати:\t{row["TotalPrice"]} грн");
+    Console.WriteLine($"\nКвиток #{t.Id}:");
+    Console.WriteLine($"1) ПІБ пасажира:\t{t.Passenger.FullName}");
+    Console.WriteLine($"2) Домашня адреса:\t{t.Passenger.Address}");
+    Console.WriteLine($"3) Телефон:\t\t{t.Passenger.Phone}");
+    Console.WriteLine($"4) Номер поїзда:\t{t.Train.TrainNumber}");
+    Console.WriteLine($"5) Тип поїзда:\t\t{t.Train.TrainType}");
+    Console.WriteLine($"6) Номер вагона:\t{t.CarriageNumber}");
+    Console.WriteLine($"7) Тип вагона:\t\t{t.CarriageType.TypeName}");
+    Console.WriteLine($"8) Дата відправлення:\t{t.DepartureDate}");
+    Console.WriteLine($"9) Час відправлення/прибуття:\t{t.Train.DepartureTime} / {t.Train.ArrivalTime}");
+    Console.WriteLine($"10) Пункт призначення:\t{t.Train.Destination.Name}");
+    Console.WriteLine($"11) Відстань:\t\t{t.Train.Destination.DistanceKm} км");
+    Console.WriteLine($"12) Вартість проїзду:\t{t.Train.Destination.BaseFare} грн");
+    Console.WriteLine($"13) Доплата за терміновість:\t{t.UrgencySurcharge} грн");
+    Console.WriteLine($"14) Доплата за тип вагона:\t{t.CarriageType.Surcharge} грн");
+    Console.WriteLine($"Разом до сплати:\t{t.GetTotalPrice()} грн");
 }
 
+// 2. Пасажири та кількість їх бронювань (5 осіб, від 2 бронювань)
 Console.WriteLine("\n\n=== ПАСАЖИРИ (5 осіб, від 2 бронювань) ===");
-DataTable passengers = Database.GetPassengers();
-foreach (DataRow row in passengers.Rows)
+var passengers = ticketService.GetAllPassengers();
+foreach (var p in passengers)
 {
-    Console.WriteLine($"- {row["FullName"]} ({row["Phone"]}) — квитків: {row["TicketsCount"]}");
+    Console.WriteLine($"- {p.FullName} ({p.Phone}) — квитків: {p.Tickets.Count}");
 }
 
+// 3. Поїзди
 Console.WriteLine("\n\n=== ПОЇЗДИ (3 поїзди) ===");
-DataTable trains = Database.GetTrains();
-foreach (DataRow row in trains.Rows)
+var trains = ticketService.GetAllTrains();
+foreach (var tr in trains)
 {
-    Console.WriteLine($"Поїзд #{row["TrainNumber"]} ({row["TrainType"]}) -> {row["Destination"]} ({row["DepartureTime"]} - {row["ArrivalTime"]})");
+    Console.WriteLine($"Поїзд #{tr.TrainNumber} ({tr.TrainType}) -> {tr.Destination.Name} ({tr.DepartureTime} - {tr.ArrivalTime})");
 }
 
+// 4. Пункти призначення
 Console.WriteLine("\n\n=== ПУНКТИ ПРИЗНАЧЕННЯ (4 пункти) ===");
-DataTable destinations = Database.GetDestinations();
-foreach (DataRow row in destinations.Rows)
+var destinations = ticketService.GetAllDestinations();
+foreach (var d in destinations)
 {
-    Console.WriteLine($"- {row["Name"]}: відстань {row["DistanceKm"]} км, базовий тариф {row["BaseFare"]} грн");
+    Console.WriteLine($"- {d.Name}: відстань {d.DistanceKm} км, базовий тариф {d.BaseFare} грн");
 }
