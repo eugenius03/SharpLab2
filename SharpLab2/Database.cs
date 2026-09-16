@@ -5,7 +5,7 @@ namespace SharpLab2;
 
 public static class Database
 {
-    public const string ConnectionString = "Data Source=tickets.db";
+    private const string ConnectionString = "Data Source=tickets.db";
 
     public static void Initialize()
     {
