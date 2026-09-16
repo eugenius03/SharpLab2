@@ -32,7 +32,7 @@ Console.WriteLine("\n\n=== ПАСАЖИРИ (5 осіб, від 2 бронюва
 DataTable passengers = Database.GetPassengers();
 foreach (DataRow row in passengers.Rows)
 {
-    Console.WriteLine($"- {row["FullName"]} ({row["Phone"]}) — квитків: {row["TicketsCount"]}");
+    Console.WriteLine($"- {row["FullName"]} ({row["Phone"]}) - квитків: {row["TicketsCount"]}");
 }
 
 Console.WriteLine("\n\n=== ПОЇЗДИ (3 поїзди) ===");

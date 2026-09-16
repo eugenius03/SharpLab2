@@ -5,7 +5,7 @@ namespace SharpLab2;
 
 public static class Database
 {
-    public const string ConnectionString = "Data Source=tickets.db";
+    private const string ConnectionString = "Data Source=tickets.db";
 
     public static void Initialize()
     {
@@ -18,31 +18,31 @@ public static class Database
 
             CREATE TABLE IF NOT EXISTS Destinations (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                Name TEXT NOT NULL,
+                Name VARCHAR(50) NOT NULL,
                 DistanceKm REAL NOT NULL,
                 BaseFare REAL NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS CarriageTypes (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                TypeName TEXT NOT NULL,
+                TypeName VARCHAR(50) NOT NULL,
                 Surcharge REAL NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS Passengers (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                FullName TEXT NOT NULL,
-                Address TEXT NOT NULL,
-                Phone TEXT NOT NULL
+                FullName VARCHAR(150) NOT NULL,
+                Address VARCHAR(50) NOT NULL,
+                Phone VARCHAR(15) NOT NULL
             );
 
             CREATE TABLE IF NOT EXISTS Trains (
                 Id INTEGER PRIMARY KEY AUTOINCREMENT,
-                TrainNumber TEXT NOT NULL,
-                TrainType TEXT NOT NULL,
+                TrainNumber VARCHAR(50) NOT NULL,
+                TrainType VARCHAR(50) NOT NULL,
                 DestinationId INTEGER NOT NULL,
-                DepartureTime TEXT NOT NULL,
-                ArrivalTime TEXT NOT NULL,
+                DepartureTime VARCHAR(50) NOT NULL,
+                ArrivalTime VARCHAR(50) NOT NULL,
                 FOREIGN KEY (DestinationId) REFERENCES Destinations(Id)
             );
 
@@ -52,7 +52,7 @@ public static class Database
                 TrainId INTEGER NOT NULL,
                 CarriageNumber INTEGER NOT NULL,
                 CarriageTypeId INTEGER NOT NULL,
-                DepartureDate TEXT NOT NULL,
+                DepartureDate VARCHAR(50) NOT NULL,
                 UrgencySurcharge REAL NOT NULL DEFAULT 0,
                 FOREIGN KEY (PassengerId) REFERENCES Passengers(Id),
                 FOREIGN KEY (TrainId) REFERENCES Trains(Id),
