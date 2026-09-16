@@ -11,7 +11,6 @@ databaseInitializer.Initialize();
 
 var ticketService = new TicketService(context);
 
-// 1. Інформація про всі зарезервовані квитки (14 обов'язкових пунктів)
 Console.WriteLine("=== СПИСОК РЕЗЕРВУВАННЯ КВИТКІВ ===");
 var tickets = ticketService.GetAllTickets();
 foreach (var t in tickets)
@@ -34,7 +33,6 @@ foreach (var t in tickets)
     Console.WriteLine($"Разом до сплати:\t{t.GetTotalPrice()} грн");
 }
 
-// 2. Пасажири та кількість їх бронювань (5 осіб, від 2 бронювань)
 Console.WriteLine("\n\n=== ПАСАЖИРИ (5 осіб, від 2 бронювань) ===");
 var passengers = ticketService.GetAllPassengers();
 foreach (var p in passengers)
@@ -42,7 +40,6 @@ foreach (var p in passengers)
     Console.WriteLine($"- {p.FullName} ({p.Phone}) — квитків: {p.Tickets.Count}");
 }
 
-// 3. Поїзди
 Console.WriteLine("\n\n=== ПОЇЗДИ (3 поїзди) ===");
 var trains = ticketService.GetAllTrains();
 foreach (var tr in trains)
@@ -50,7 +47,6 @@ foreach (var tr in trains)
     Console.WriteLine($"Поїзд #{tr.TrainNumber} ({tr.TrainType}) -> {tr.Destination.Name} ({tr.DepartureTime} - {tr.ArrivalTime})");
 }
 
-// 4. Пункти призначення
 Console.WriteLine("\n\n=== ПУНКТИ ПРИЗНАЧЕННЯ (4 пункти) ===");
 var destinations = ticketService.GetAllDestinations();
 foreach (var d in destinations)
