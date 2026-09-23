@@ -2,14 +2,15 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SharpLab2.Models;
 
-public class CarriageType
+public class CarriageType : IEntity
 {
-    public int Id { get; init; }
+    public int Id { get; set; }
 
+    [Required]
     [MaxLength(50)]
-    public string TypeName { get; init; } = string.Empty;
+    public string TypeName { get; set; } = string.Empty;
 
-    public decimal Surcharge { get; init; }
+    public decimal Surcharge { get; set; }
 
-    public List<Ticket> Tickets { get; init; } = [];
+    public List<Ticket> Tickets { get; set; } = [];
 }

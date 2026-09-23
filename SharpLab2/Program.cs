@@ -1,55 +1,33 @@
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 using SharpLab2.Data;
 using SharpLab2.Services;
 
-Console.OutputEncoding = Encoding.UTF8;
+var builder = WebApplication.CreateBuilder(args);
 
-using var context = new AppDbContext();
+builder.Services.AddControllersWithViews();
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlite(AppDbContext.ConnectionString));
 
-var databaseInitializer = new DatabaseInitializer(context);
-databaseInitializer.Initialize();
+builder.Services.AddScoped<ITicketService, TicketService>();
+builder.Services.AddScoped<IPassengerService, PassengerService>();
+builder.Services.AddScoped<ITrainService, TrainService>();
+builder.Services.AddScoped<IDestinationService, DestinationService>();
+builder.Services.AddScoped<ICarriageTypeService, CarriageTypeService>();
 
-var ticketService = new TicketService(context);
+var app = builder.Build();
 
-Console.WriteLine("=== СПИСОК РЕЗЕРВУВАННЯ КВИТКІВ ===");
-var tickets = ticketService.GetAllTickets();
-foreach (var t in tickets)
+using (var scope = app.Services.CreateScope())
 {
-    Console.WriteLine($"\nКвиток #{t.Id}:");
-    Console.WriteLine($"1) ПІБ пасажира:\t{t.Passenger.FullName}");
-    Console.WriteLine($"2) Домашня адреса:\t{t.Passenger.Address}");
-    Console.WriteLine($"3) Телефон:\t\t{t.Passenger.Phone}");
-    Console.WriteLine($"4) Номер поїзда:\t{t.Train.TrainNumber}");
-    Console.WriteLine($"5) Тип поїзда:\t\t{t.Train.TrainType}");
-    Console.WriteLine($"6) Номер вагона:\t{t.CarriageNumber}");
-    Console.WriteLine($"7) Тип вагона:\t\t{t.CarriageType.TypeName}");
-    Console.WriteLine($"8) Дата відправлення:\t{t.DepartureDate}");
-    Console.WriteLine($"9) Час відправлення/прибуття:\t{t.Train.DepartureTime} / {t.Train.ArrivalTime}");
-    Console.WriteLine($"10) Пункт призначення:\t{t.Train.Destination.Name}");
-    Console.WriteLine($"11) Відстань:\t\t{t.Train.Destination.DistanceKm} км");
-    Console.WriteLine($"12) Вартість проїзду:\t{t.Train.Destination.BaseFare} грн");
-    Console.WriteLine($"13) Доплата за терміновість:\t{t.UrgencySurcharge} грн");
-    Console.WriteLine($"14) Доплата за тип вагона:\t{t.CarriageType.Surcharge} грн");
-    Console.WriteLine($"Разом до сплати:\t{t.GetTotalPrice()} грн");
+    var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    var initializer = new DatabaseInitializer(context);
+    initializer.Initialize();
 }
 
-Console.WriteLine("\n\n=== ПАСАЖИРИ (5 осіб, від 2 бронювань) ===");
-var passengers = ticketService.GetAllPassengers();
-foreach (var p in passengers)
-{
-    Console.WriteLine($"- {p.FullName} ({p.Phone}) — квитків: {p.Tickets.Count}");
-}
+app.UseStaticFiles();
+app.UseRouting();
 
-Console.WriteLine("\n\n=== ПОЇЗДИ (3 поїзди) ===");
-var trains = ticketService.GetAllTrains();
-foreach (var tr in trains)
-{
-    Console.WriteLine($"Поїзд #{tr.TrainNumber} ({tr.TrainType}) -> {tr.Destination.Name} ({tr.DepartureTime} - {tr.ArrivalTime})");
-}
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
-Console.WriteLine("\n\n=== ПУНКТИ ПРИЗНАЧЕННЯ (4 пункти) ===");
-var destinations = ticketService.GetAllDestinations();
-foreach (var d in destinations)
-{
-    Console.WriteLine($"- {d.Name}: відстань {d.DistanceKm} км, базовий тариф {d.BaseFare} грн");
-}
+app.Run();

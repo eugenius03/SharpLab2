@@ -1,0 +1,48 @@
+@{
+    ViewData["Title"] = "Головна";
+}
+
+<div class="text-center my-4">
+    <h1 class="display-5">Резервування квитків</h1>
+    <p class="lead">Лабораторна робота №3: ASP.NET Core MVC та Entity Framework Core.</p>
+</div>
+
+<hr />
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-3">
+        <h4>Статистика</h4>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Квитки
+                <span class="badge bg-primary rounded-pill">@ViewBag.TicketsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пасажири
+                <span class="badge bg-primary rounded-pill">@ViewBag.PassengersCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Поїзди
+                <span class="badge bg-primary rounded-pill">@ViewBag.TrainsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пункти призначення
+                <span class="badge bg-primary rounded-pill">@ViewBag.DestinationsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Типи вагонів
+                <span class="badge bg-primary rounded-pill">@ViewBag.CarriageTypesCount</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-6 mb-3">
+        <h4>Розділи системи</h4>
+        <div class="list-group">
+            <a asp-controller="Tickets" asp-action="Index" class="list-group-item list-group-item-action">Управління квитками</a>
+            <a asp-controller="Passengers" asp-action="Index" class="list-group-item list-group-item-action">Управління пасажирами</a>
+            <a asp-controller="Trains" asp-action="Index" class="list-group-item list-group-item-action">Управління поїздами</a>
+            <a asp-controller="Destinations" asp-action="Index" class="list-group-item list-group-item-action">Управління пунктами призначення</a>
+            <a asp-controller="CarriageTypes" asp-action="Index" class="list-group-item list-group-item-action">Управління типами вагонів</a>
+        </div>
+    </div>
+</div>
