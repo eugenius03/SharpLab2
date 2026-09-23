@@ -1,0 +1,61 @@
+@model SharpLab2.Models.Ticket
+
+@{
+    ViewData["Title"] = "Деталі квитка";
+}
+
+<h2>Деталі квитка #@Model.Id</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">1) ПІБ пасажира</dt>
+        <dd class="col-sm-9">@Model.Passenger?.FullName</dd>
+
+        <dt class="col-sm-3">2) Домашня адреса</dt>
+        <dd class="col-sm-9">@Model.Passenger?.Address</dd>
+
+        <dt class="col-sm-3">3) Телефон</dt>
+        <dd class="col-sm-9">@Model.Passenger?.Phone</dd>
+
+        <dt class="col-sm-3">4) Номер поїзда</dt>
+        <dd class="col-sm-9">@Model.Train?.TrainNumber</dd>
+
+        <dt class="col-sm-3">5) Тип поїзда</dt>
+        <dd class="col-sm-9">@Model.Train?.TrainType</dd>
+
+        <dt class="col-sm-3">6) Номер вагона</dt>
+        <dd class="col-sm-9">@Model.CarriageNumber</dd>
+
+        <dt class="col-sm-3">7) Тип вагона</dt>
+        <dd class="col-sm-9">@Model.CarriageType?.TypeName</dd>
+
+        <dt class="col-sm-3">8) Дата відправлення</dt>
+        <dd class="col-sm-9">@Model.DepartureDate</dd>
+
+        <dt class="col-sm-3">9) Час відпр./приб.</dt>
+        <dd class="col-sm-9">@Model.Train?.DepartureTime — @Model.Train?.ArrivalTime</dd>
+
+        <dt class="col-sm-3">10) Пункт призначення</dt>
+        <dd class="col-sm-9">@Model.Train?.Destination?.Name</dd>
+
+        <dt class="col-sm-3">11) Відстань</dt>
+        <dd class="col-sm-9">@Model.Train?.Destination?.DistanceKm км</dd>
+
+        <dt class="col-sm-3">12) Вартість проїзду</dt>
+        <dd class="col-sm-9">@Model.Train?.Destination?.BaseFare грн</dd>
+
+        <dt class="col-sm-3">13) Доплата за терміновість</dt>
+        <dd class="col-sm-9">@Model.UrgencySurcharge грн</dd>
+
+        <dt class="col-sm-3">14) Доплата за тип вагона</dt>
+        <dd class="col-sm-9">@Model.CarriageType?.Surcharge грн</dd>
+
+        <dt class="col-sm-3">Разом до сплати</dt>
+        <dd class="col-sm-9"><strong>@Model.GetTotalPrice() грн</strong></dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-action="Index" class="btn btn-secondary">Назад до списку</a>
+</div>
