@@ -1,10 +1,17 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using SharpLab2.Data;
 using SharpLab2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+    });
+
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(AppDbContext.ConnectionString));
 
@@ -26,8 +33,7 @@ using (var scope = app.Services.CreateScope())
 app.UseStaticFiles();
 app.UseRouting();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.MapRazorPages();
+app.MapControllers();
 
 app.Run();

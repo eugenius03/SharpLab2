@@ -1,136 +1,115 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
+using SharpLab2.DTOs;
 using SharpLab2.Models;
 using SharpLab2.Services;
 
 namespace SharpLab2.Controllers;
 
-public class TicketsController(
-    ITicketService ticketService,
-    IPassengerService passengerService,
-    ITrainService trainService,
-    ICarriageTypeService carriageTypeService) : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class TicketsController(ITicketService ticketService) : ControllerBase
 {
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<ActionResult<List<TicketResponse>>> GetAll()
     {
-        return View(await ticketService.GetAllAsync());
+        var tickets = await ticketService.GetAllAsync();
+        var responses = tickets.Select(MapToResponse).ToList();
+        return Ok(responses);
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<TicketResponse>> GetById(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var ticket = await ticketService.GetByIdAsync(id.Value);
+        var ticket = await ticketService.GetByIdAsync(id);
         if (ticket == null)
         {
             return NotFound();
         }
 
-        return View(ticket);
-    }
-
-    public async Task<IActionResult> Create()
-    {
-        await PopulateDropdownsAsync();
-        return View();
+        return Ok(MapToResponse(ticket));
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("PassengerId,TrainId,CarriageNumber,CarriageTypeId,DepartureDate,UrgencySurcharge")] Ticket ticket)
+    public async Task<ActionResult<TicketResponse>> Create([FromBody] CreateTicketRequest request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await ticketService.CreateAsync(ticket);
-            return RedirectToAction(nameof(Index));
+            return BadRequest(ModelState);
         }
 
-        await PopulateDropdownsAsync(ticket.PassengerId, ticket.TrainId, ticket.CarriageTypeId);
-        return View(ticket);
+        var ticket = new Ticket
+        {
+            PassengerId = request.PassengerId,
+            TrainId = request.TrainId,
+            CarriageNumber = request.CarriageNumber,
+            CarriageTypeId = request.CarriageTypeId,
+            DepartureDate = request.DepartureDate,
+            UrgencySurcharge = request.UrgencySurcharge
+        };
+
+        await ticketService.CreateAsync(ticket);
+        var created = await ticketService.GetByIdAsync(ticket.Id);
+
+        return CreatedAtAction(nameof(GetById), new { id = ticket.Id }, MapToResponse(created ?? ticket));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateTicketRequest request)
     {
-        if (id == null)
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            return BadRequest(ModelState);
         }
 
-        var ticket = await ticketService.GetByIdAsync(id.Value);
+        var ticket = await ticketService.GetByIdAsync(id);
         if (ticket == null)
         {
             return NotFound();
         }
 
-        await PopulateDropdownsAsync(ticket.PassengerId, ticket.TrainId, ticket.CarriageTypeId);
-        return View(ticket);
+        ticket.PassengerId = request.PassengerId;
+        ticket.TrainId = request.TrainId;
+        ticket.CarriageNumber = request.CarriageNumber;
+        ticket.CarriageTypeId = request.CarriageTypeId;
+        ticket.DepartureDate = request.DepartureDate;
+        ticket.UrgencySurcharge = request.UrgencySurcharge;
+
+        await ticketService.UpdateAsync(ticket);
+        return NoContent();
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,PassengerId,TrainId,CarriageNumber,CarriageTypeId,DepartureDate,UrgencySurcharge")] Ticket ticket)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id != ticket.Id)
+        if (!await ticketService.ExistsAsync(id))
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
-        {
-            if (!await ticketService.ExistsAsync(id))
-            {
-                return NotFound();
-            }
-
-            await ticketService.UpdateAsync(ticket);
-            return RedirectToAction(nameof(Index));
-        }
-
-        await PopulateDropdownsAsync(ticket.PassengerId, ticket.TrainId, ticket.CarriageTypeId);
-        return View(ticket);
-    }
-
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var ticket = await ticketService.GetByIdAsync(id.Value);
-        if (ticket == null)
-        {
-            return NotFound();
-        }
-
-        return View(ticket);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
         await ticketService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        return NoContent();
     }
 
-    private async Task PopulateDropdownsAsync(int? selectedPassenger = null, int? selectedTrain = null, int? selectedCarriageType = null)
-    {
-        var passengers = await passengerService.GetAllAsync();
-        ViewBag.PassengerId = new SelectList(passengers, "Id", "FullName", selectedPassenger);
-
-        var trains = await trainService.GetAllAsync();
-        var trainList = trains.Select(t => new
-        {
-            t.Id,
-            Display = t.TrainNumber + " (" + t.TrainType + " -> " + (t.Destination != null ? t.Destination.Name : "") + ")"
-        }).ToList();
-        ViewBag.TrainId = new SelectList(trainList, "Id", "Display", selectedTrain);
-
-        var carriageTypes = await carriageTypeService.GetAllAsync();
-        ViewBag.CarriageTypeId = new SelectList(carriageTypes, "Id", "TypeName", selectedCarriageType);
-    }
+    private static TicketResponse MapToResponse(Ticket t) => new(
+        t.Id,
+        t.PassengerId,
+        t.Passenger?.FullName,
+        t.Passenger?.Address,
+        t.Passenger?.Phone,
+        t.TrainId,
+        t.Train?.TrainNumber,
+        t.Train?.TrainType,
+        t.Train?.DepartureTime,
+        t.Train?.ArrivalTime,
+        t.Train?.Destination?.Name,
+        t.Train?.Destination?.DistanceKm ?? 0,
+        t.Train?.Destination?.BaseFare ?? 0,
+        t.CarriageNumber,
+        t.CarriageTypeId,
+        t.CarriageType?.TypeName,
+        t.CarriageType?.Surcharge ?? 0,
+        t.DepartureDate,
+        t.UrgencySurcharge,
+        t.GetTotalPrice()
+    );
 }

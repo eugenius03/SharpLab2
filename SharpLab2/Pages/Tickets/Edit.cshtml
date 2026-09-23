@@ -1,0 +1,58 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Tickets.EditModel
+@{
+    ViewData["Title"] = "Редагувати квиток";
+}
+
+<h2>Редагувати квиток #@Model.Ticket.Id</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <input type="hidden" asp-for="Ticket.Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.PassengerId" class="control-label">Пасажир</label>
+                <select asp-for="Ticket.PassengerId" class="form-control" asp-items="Model.PassengerList"></select>
+                <span asp-validation-for="Ticket.PassengerId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.TrainId" class="control-label">Поїзд</label>
+                <select asp-for="Ticket.TrainId" class="form-control" asp-items="Model.TrainList"></select>
+                <span asp-validation-for="Ticket.TrainId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.CarriageTypeId" class="control-label">Тип вагона</label>
+                <select asp-for="Ticket.CarriageTypeId" class="form-control" asp-items="Model.CarriageTypeList"></select>
+                <span asp-validation-for="Ticket.CarriageTypeId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.CarriageNumber" class="control-label">Номер вагона</label>
+                <input asp-for="Ticket.CarriageNumber" class="form-control" type="number" min="1" max="25" />
+                <span asp-validation-for="Ticket.CarriageNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.DepartureDate" class="control-label">Дата відправлення</label>
+                <input asp-for="Ticket.DepartureDate" class="form-control" type="date" />
+                <span asp-validation-for="Ticket.DepartureDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Ticket.UrgencySurcharge" class="control-label">Доплата за терміновість (грн)</label>
+                <input asp-for="Ticket.UrgencySurcharge" class="form-control" type="number" step="0.01" />
+                <span asp-validation-for="Ticket.UrgencySurcharge" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Зберегти" class="btn btn-warning" />
+                <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+            </div>
+        </form>
+    </div>
+</div>

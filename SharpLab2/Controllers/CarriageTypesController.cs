@@ -1,110 +1,89 @@
 using Microsoft.AspNetCore.Mvc;
+using SharpLab2.DTOs;
 using SharpLab2.Models;
 using SharpLab2.Services;
 
 namespace SharpLab2.Controllers;
 
-public class CarriageTypesController(ICarriageTypeService carriageTypeService) : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class CarriageTypesController(ICarriageTypeService carriageTypeService) : ControllerBase
 {
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<ActionResult<List<CarriageTypeResponse>>> GetAll()
     {
-        return View(await carriageTypeService.GetAllAsync());
+        var carriageTypes = await carriageTypeService.GetAllAsync();
+        var responses = carriageTypes.Select(MapToResponse).ToList();
+        return Ok(responses);
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<CarriageTypeResponse>> GetById(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var carriageType = await carriageTypeService.GetByIdAsync(id.Value);
+        var carriageType = await carriageTypeService.GetByIdAsync(id);
         if (carriageType == null)
         {
             return NotFound();
         }
 
-        return View(carriageType);
-    }
-
-    public IActionResult Create()
-    {
-        return View();
+        return Ok(MapToResponse(carriageType));
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("TypeName,Surcharge")] CarriageType carriageType)
+    public async Task<ActionResult<CarriageTypeResponse>> Create([FromBody] CreateCarriageTypeRequest request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await carriageTypeService.CreateAsync(carriageType);
-            return RedirectToAction(nameof(Index));
+            return BadRequest(ModelState);
         }
 
-        return View(carriageType);
+        var carriageType = new CarriageType
+        {
+            TypeName = request.TypeName,
+            Surcharge = request.Surcharge
+        };
+
+        await carriageTypeService.CreateAsync(carriageType);
+        return CreatedAtAction(nameof(GetById), new { id = carriageType.Id }, MapToResponse(carriageType));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateCarriageTypeRequest request)
     {
-        if (id == null)
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            return BadRequest(ModelState);
         }
 
-        var carriageType = await carriageTypeService.GetByIdAsync(id.Value);
+        var carriageType = await carriageTypeService.GetByIdAsync(id);
         if (carriageType == null)
         {
             return NotFound();
         }
 
-        return View(carriageType);
+        carriageType.TypeName = request.TypeName;
+        carriageType.Surcharge = request.Surcharge;
+
+        await carriageTypeService.UpdateAsync(carriageType);
+        return NoContent();
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,TypeName,Surcharge")] CarriageType carriageType)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id != carriageType.Id)
+        if (!await carriageTypeService.ExistsAsync(id))
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
-        {
-            if (!await carriageTypeService.ExistsAsync(id))
-            {
-                return NotFound();
-            }
-
-            await carriageTypeService.UpdateAsync(carriageType);
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(carriageType);
-    }
-
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var carriageType = await carriageTypeService.GetByIdAsync(id.Value);
-        if (carriageType == null)
-        {
-            return NotFound();
-        }
-
-        return View(carriageType);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
         await carriageTypeService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        return NoContent();
     }
+
+    private static CarriageTypeResponse MapToResponse(CarriageType c) => new(
+        c.Id,
+        c.TypeName,
+        c.Surcharge,
+        c.Tickets.Count
+    );
 }

@@ -1,0 +1,67 @@
+@page
+@model SharpLab2.Pages.Tickets.IndexModel
+@{
+    ViewData["Title"] = "Квитки";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Список зарезервованих квитків</h2>
+        <p class="text-muted mb-0">Відображення інформації про рейси та розрахунок вартості</p>
+    </div>
+    <a asp-page="./Create" class="btn btn-primary">Оформити новий квиток</a>
+</div>
+
+<div class="table-responsive">
+    <table class="table table-striped table-hover align-middle border">
+        <thead class="table-light">
+            <tr>
+                <th style="width: 45px;">#</th>
+                <th>Пасажир</th>
+                <th>Рейс і напрямок</th>
+                <th>Вагон</th>
+                <th>Дата відправлення</th>
+                <th>Тарифи та доплати</th>
+                <th>До сплати</th>
+                <th class="text-end" style="width: 220px;">Дії</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Tickets)
+            {
+                <tr>
+                    <td class="fw-bold">@item.Id</td>
+                    <td>
+                        <div class="fw-semibold">@item.Passenger?.FullName</div>
+                        <div class="small text-muted">@item.Passenger?.Phone</div>
+                        <div class="small text-muted">@item.Passenger?.Address</div>
+                    </td>
+                    <td>
+                        <div class="fw-semibold">Поїзд @item.Train?.TrainNumber (@item.Train?.TrainType) &rarr; @item.Train?.Destination?.Name</div>
+                        <div class="small text-muted">Час: @item.Train?.DepartureTime – @item.Train?.ArrivalTime &middot; @item.Train?.Destination?.DistanceKm км</div>
+                    </td>
+                    <td>
+                        <div>№@item.CarriageNumber</div>
+                        <div class="small text-muted">@item.CarriageType?.TypeName</div>
+                    </td>
+                    <td>
+                        <div>@item.DepartureDate</div>
+                    </td>
+                    <td>
+                        <div class="small text-muted">Базовий тариф: @item.Train?.Destination?.BaseFare.ToString("F2") грн</div>
+                        <div class="small text-muted">Терміновість: +@item.UrgencySurcharge.ToString("F2") грн</div>
+                        <div class="small text-muted">Тип вагона: +@item.CarriageType?.Surcharge.ToString("F2") грн</div>
+                    </td>
+                    <td>
+                        <span class="fw-bold text-success">@item.GetTotalPrice().ToString("F2") грн</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-sm btn-outline-secondary">Редагувати</a>
+                        <a asp-page="./Details" asp-route-id="@item.Id" class="btn btn-sm btn-outline-info">Деталі</a>
+                        <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-sm btn-outline-danger">Видалити</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

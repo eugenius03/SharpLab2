@@ -1,0 +1,59 @@
+@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Головна";
+}
+
+<div class="text-center my-4">
+    <h1 class="display-5">Резервування квитків</h1>
+    <p class="lead">Лабораторна робота №4: ASP.NET Core Razor Pages та Web API (RESTful JSON).</p>
+</div>
+
+<hr />
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <h4>Статистика системи</h4>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Квитки
+                <span class="badge bg-primary rounded-pill">@Model.TicketsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пасажири
+                <span class="badge bg-primary rounded-pill">@Model.PassengersCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Поїзди
+                <span class="badge bg-primary rounded-pill">@Model.TrainsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пункти призначення
+                <span class="badge bg-primary rounded-pill">@Model.DestinationsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Типи вагонів
+                <span class="badge bg-primary rounded-pill">@Model.CarriageTypesCount</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-6 mb-4">
+        <h4>Розділи Razor Pages</h4>
+        <div class="list-group mb-3">
+            <a asp-page="/Tickets/Index" class="list-group-item list-group-item-action">Управління квитками</a>
+            <a asp-page="/Passengers/Index" class="list-group-item list-group-item-action">Управління пасажирами</a>
+            <a asp-page="/Trains/Index" class="list-group-item list-group-item-action">Управління поїздами</a>
+            <a asp-page="/Destinations/Index" class="list-group-item list-group-item-action">Управління пунктами призначення</a>
+            <a asp-page="/CarriageTypes/Index" class="list-group-item list-group-item-action">Управління типами вагонів</a>
+        </div>
+
+        <h4>RESTful Web API (JSON)</h4>
+        <div class="list-group">
+            <a href="/api/tickets" target="_blank" class="list-group-item list-group-item-action">GET /api/tickets</a>
+            <a href="/api/passengers" target="_blank" class="list-group-item list-group-item-action">GET /api/passengers</a>
+            <a href="/api/trains" target="_blank" class="list-group-item list-group-item-action">GET /api/trains</a>
+            <a href="/api/destinations" target="_blank" class="list-group-item list-group-item-action">GET /api/destinations</a>
+            <a href="/api/carriagetypes" target="_blank" class="list-group-item list-group-item-action">GET /api/carriagetypes</a>
+        </div>
+    </div>
+</div>

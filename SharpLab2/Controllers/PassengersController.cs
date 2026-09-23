@@ -1,110 +1,92 @@
 using Microsoft.AspNetCore.Mvc;
+using SharpLab2.DTOs;
 using SharpLab2.Models;
 using SharpLab2.Services;
 
 namespace SharpLab2.Controllers;
 
-public class PassengersController(IPassengerService passengerService) : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class PassengersController(IPassengerService passengerService) : ControllerBase
 {
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<ActionResult<List<PassengerResponse>>> GetAll()
     {
-        return View(await passengerService.GetAllAsync());
+        var passengers = await passengerService.GetAllAsync();
+        var responses = passengers.Select(MapToResponse).ToList();
+        return Ok(responses);
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<PassengerResponse>> GetById(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var passenger = await passengerService.GetByIdAsync(id.Value);
+        var passenger = await passengerService.GetByIdAsync(id);
         if (passenger == null)
         {
             return NotFound();
         }
 
-        return View(passenger);
-    }
-
-    public IActionResult Create()
-    {
-        return View();
+        return Ok(MapToResponse(passenger));
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("FullName,Address,Phone")] Passenger passenger)
+    public async Task<ActionResult<PassengerResponse>> Create([FromBody] CreatePassengerRequest request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await passengerService.CreateAsync(passenger);
-            return RedirectToAction(nameof(Index));
+            return BadRequest(ModelState);
         }
 
-        return View(passenger);
+        var passenger = new Passenger
+        {
+            FullName = request.FullName,
+            Address = request.Address,
+            Phone = request.Phone
+        };
+
+        await passengerService.CreateAsync(passenger);
+        return CreatedAtAction(nameof(GetById), new { id = passenger.Id }, MapToResponse(passenger));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreatePassengerRequest request)
     {
-        if (id == null)
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            return BadRequest(ModelState);
         }
 
-        var passenger = await passengerService.GetByIdAsync(id.Value);
+        var passenger = await passengerService.GetByIdAsync(id);
         if (passenger == null)
         {
             return NotFound();
         }
 
-        return View(passenger);
+        passenger.FullName = request.FullName;
+        passenger.Address = request.Address;
+        passenger.Phone = request.Phone;
+
+        await passengerService.UpdateAsync(passenger);
+        return NoContent();
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,FullName,Address,Phone")] Passenger passenger)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id != passenger.Id)
+        if (!await passengerService.ExistsAsync(id))
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
-        {
-            if (!await passengerService.ExistsAsync(id))
-            {
-                return NotFound();
-            }
-
-            await passengerService.UpdateAsync(passenger);
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(passenger);
-    }
-
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var passenger = await passengerService.GetByIdAsync(id.Value);
-        if (passenger == null)
-        {
-            return NotFound();
-        }
-
-        return View(passenger);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
         await passengerService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        return NoContent();
     }
+
+    private static PassengerResponse MapToResponse(Passenger p) => new(
+        p.Id,
+        p.FullName,
+        p.Address,
+        p.Phone,
+        p.Tickets.Count
+    );
 }

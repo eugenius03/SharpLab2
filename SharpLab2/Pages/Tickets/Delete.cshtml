@@ -1,0 +1,37 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Tickets.DeleteModel
+@{
+    ViewData["Title"] = "Видалити квиток";
+}
+
+<h2>Видалення квитка</h2>
+
+<h3>Ви впевнені, що бажаєте видалити цей запис?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Номер квитка</dt>
+        <dd class="col-sm-9">#@Model.Ticket.Id</dd>
+
+        <dt class="col-sm-3">Пасажир</dt>
+        <dd class="col-sm-9">@Model.Ticket.Passenger?.FullName</dd>
+
+        <dt class="col-sm-3">Поїзд</dt>
+        <dd class="col-sm-9">@Model.Ticket.Train?.TrainNumber (@Model.Ticket.Train?.Destination?.Name)</dd>
+
+        <dt class="col-sm-3">Дата відправлення</dt>
+        <dd class="col-sm-9">@Model.Ticket.DepartureDate</dd>
+
+        <dt class="col-sm-3">Вагон / Тип</dt>
+        <dd class="col-sm-9">№@Model.Ticket.CarriageNumber (@Model.Ticket.CarriageType?.TypeName)</dd>
+
+        <dt class="col-sm-3">Сума до сплати</dt>
+        <dd class="col-sm-9"><strong>@Model.Ticket.GetTotalPrice().ToString("F2") грн</strong></dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" asp-for="Ticket.Id" />
+        <input type="submit" value="Видалити" class="btn btn-danger" />
+        <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+    </form>
+</div>

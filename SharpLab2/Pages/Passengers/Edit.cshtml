@@ -1,0 +1,40 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Passengers.EditModel
+@{
+    ViewData["Title"] = "Редагувати пасажира";
+}
+
+<h2>Редагувати пасажира</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <input type="hidden" asp-for="Passenger.Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Passenger.FullName" class="control-label">ПІБ пасажира</label>
+                <input asp-for="Passenger.FullName" class="form-control" />
+                <span asp-validation-for="Passenger.FullName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Passenger.Address" class="control-label">Домашня адреса</label>
+                <input asp-for="Passenger.Address" class="form-control" />
+                <span asp-validation-for="Passenger.Address" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Passenger.Phone" class="control-label">Номер телефону</label>
+                <input asp-for="Passenger.Phone" class="form-control" />
+                <span asp-validation-for="Passenger.Phone" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Зберегти" class="btn btn-warning" />
+                <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,51 @@
+@page
+@model SharpLab2.Pages.Trains.CreateModel
+@{
+    ViewData["Title"] = "Додати поїзд";
+}
+
+<h2>Додати поїзд</h2>
+<hr />
+
+<div class="row">
+    <div class="col-md-6">
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Train.TrainNumber" class="control-label">Номер поїзда</label>
+                <input asp-for="Train.TrainNumber" class="form-control" />
+                <span asp-validation-for="Train.TrainNumber" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Train.TrainType" class="control-label">Тип поїзда</label>
+                <input asp-for="Train.TrainType" class="form-control" />
+                <span asp-validation-for="Train.TrainType" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Train.DestinationId" class="control-label">Пункт призначення</label>
+                <select asp-for="Train.DestinationId" class="form-control" asp-items="Model.DestinationList"></select>
+                <span asp-validation-for="Train.DestinationId" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Train.DepartureTime" class="control-label">Час відправлення</label>
+                <input asp-for="Train.DepartureTime" class="form-control" />
+                <span asp-validation-for="Train.DepartureTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group mb-3">
+                <label asp-for="Train.ArrivalTime" class="control-label">Час прибуття</label>
+                <input asp-for="Train.ArrivalTime" class="form-control" />
+                <span asp-validation-for="Train.ArrivalTime" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <input type="submit" value="Створити" class="btn btn-primary" />
+                <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+            </div>
+        </form>
+    </div>
+</div>

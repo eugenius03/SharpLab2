@@ -1,0 +1,61 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Tickets.DetailsModel
+@{
+    ViewData["Title"] = "Деталі квитка";
+}
+
+<h2>Деталі квитка #@Model.Ticket?.Id</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">1) ПІБ пасажира</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Passenger?.FullName</dd>
+
+        <dt class="col-sm-3">2) Домашня адреса</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Passenger?.Address</dd>
+
+        <dt class="col-sm-3">3) Телефон</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Passenger?.Phone</dd>
+
+        <dt class="col-sm-3">4) Номер поїзда</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.TrainNumber</dd>
+
+        <dt class="col-sm-3">5) Тип поїзда</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.TrainType</dd>
+
+        <dt class="col-sm-3">6) Номер вагона</dt>
+        <dd class="col-sm-9">@Model.Ticket?.CarriageNumber</dd>
+
+        <dt class="col-sm-3">7) Тип вагона</dt>
+        <dd class="col-sm-9">@Model.Ticket?.CarriageType?.TypeName</dd>
+
+        <dt class="col-sm-3">8) Дата відправлення</dt>
+        <dd class="col-sm-9">@Model.Ticket?.DepartureDate</dd>
+
+        <dt class="col-sm-3">9) Час відпр./приб.</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.DepartureTime — @Model.Ticket?.Train?.ArrivalTime</dd>
+
+        <dt class="col-sm-3">10) Пункт призначення</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.Destination?.Name</dd>
+
+        <dt class="col-sm-3">11) Відстань</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.Destination?.DistanceKm км</dd>
+
+        <dt class="col-sm-3">12) Вартість проїзду</dt>
+        <dd class="col-sm-9">@Model.Ticket?.Train?.Destination?.BaseFare.ToString("F2") грн</dd>
+
+        <dt class="col-sm-3">13) Доплата за терміновість</dt>
+        <dd class="col-sm-9">@Model.Ticket?.UrgencySurcharge.ToString("F2") грн</dd>
+
+        <dt class="col-sm-3">14) Доплата за тип вагона</dt>
+        <dd class="col-sm-9">@Model.Ticket?.CarriageType?.Surcharge.ToString("F2") грн</dd>
+
+        <dt class="col-sm-3">Разом до сплати</dt>
+        <dd class="col-sm-9"><strong>@Model.Ticket?.GetTotalPrice().ToString("F2") грн</strong></dd>
+    </dl>
+</div>
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Ticket?.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+</div>

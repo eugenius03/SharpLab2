@@ -1,0 +1,65 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Trains.DetailsModel
+@{
+    ViewData["Title"] = "Деталі поїзда";
+}
+
+<h2>Поїзд №@Model.Train?.TrainNumber</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Номер поїзда</dt>
+        <dd class="col-sm-9">@Model.Train?.TrainNumber</dd>
+
+        <dt class="col-sm-3">Тип поїзда</dt>
+        <dd class="col-sm-9">@Model.Train?.TrainType</dd>
+
+        <dt class="col-sm-3">Пункт призначення</dt>
+        <dd class="col-sm-9">@Model.Train?.Destination?.Name (@Model.Train?.Destination?.DistanceKm км)</dd>
+
+        <dt class="col-sm-3">Час відправлення / прибуття</dt>
+        <dd class="col-sm-9">@Model.Train?.DepartureTime — @Model.Train?.ArrivalTime</dd>
+    </dl>
+</div>
+
+<h4>Квитки на цей рейс (@Model.Train?.Tickets.Count)</h4>
+@if (Model.Train?.Tickets.Any() == true)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Пасажир</th>
+                <th>Дата</th>
+                <th>Вагон</th>
+                <th>Сума</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var ticket in Model.Train.Tickets)
+            {
+                <tr>
+                    <td>@ticket.Id</td>
+                    <td>@ticket.Passenger?.FullName</td>
+                    <td>@ticket.DepartureDate</td>
+                    <td>№@ticket.CarriageNumber</td>
+                    <td>@ticket.GetTotalPrice().ToString("F2") грн</td>
+                    <td>
+                        <a asp-page="/Tickets/Details" asp-route-id="@ticket.Id">Деталі квитка</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Немає заброньованих квитків.</p>
+}
+
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Train?.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+</div>
