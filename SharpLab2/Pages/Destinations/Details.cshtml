@@ -1,0 +1,62 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Destinations.DetailsModel
+@{
+    ViewData["Title"] = "Деталі пункту призначення";
+}
+
+<h2>Станція: @Model.Destination?.Name</h2>
+
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Назва станції</dt>
+        <dd class="col-sm-9">@Model.Destination?.Name</dd>
+
+        <dt class="col-sm-3">Відстань від Чернівців</dt>
+        <dd class="col-sm-9">@Model.Destination?.DistanceKm км</dd>
+
+        <dt class="col-sm-3">Базовий тариф</dt>
+        <dd class="col-sm-9">@Model.Destination?.BaseFare.ToString("F2") грн</dd>
+    </dl>
+</div>
+
+<h4>Поїзди, що прямують до станції (@Model.Destination?.Trains.Count)</h4>
+@if (Model.Destination?.Trains.Any() == true)
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Номер поїзда</th>
+                <th>Тип</th>
+                <th>Відправлення</th>
+                <th>Прибуття</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var train in Model.Destination.Trains)
+            {
+                <tr>
+                    <td>@train.Id</td>
+                    <td>@train.TrainNumber</td>
+                    <td>@train.TrainType</td>
+                    <td>@train.DepartureTime</td>
+                    <td>@train.ArrivalTime</td>
+                    <td>
+                        <a asp-page="/Trains/Details" asp-route-id="@train.Id">Деталі поїзда</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">Немає рейсів до цього пункту призначення.</p>
+}
+
+<div>
+    <a asp-page="./Edit" asp-route-id="@Model.Destination?.Id" class="btn btn-warning">Редагувати</a>
+    <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+</div>

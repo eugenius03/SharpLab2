@@ -1,110 +1,92 @@
 using Microsoft.AspNetCore.Mvc;
+using SharpLab2.DTOs;
 using SharpLab2.Models;
 using SharpLab2.Services;
 
 namespace SharpLab2.Controllers;
 
-public class DestinationsController(IDestinationService destinationService) : Controller
+[ApiController]
+[Route("api/[controller]")]
+public class DestinationsController(IDestinationService destinationService) : ControllerBase
 {
-    public async Task<IActionResult> Index()
+    [HttpGet]
+    public async Task<ActionResult<List<DestinationResponse>>> GetAll()
     {
-        return View(await destinationService.GetAllAsync());
+        var destinations = await destinationService.GetAllAsync();
+        var responses = destinations.Select(MapToResponse).ToList();
+        return Ok(responses);
     }
 
-    public async Task<IActionResult> Details(int? id)
+    [HttpGet("{id:int}")]
+    public async Task<ActionResult<DestinationResponse>> GetById(int id)
     {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var destination = await destinationService.GetByIdAsync(id.Value);
+        var destination = await destinationService.GetByIdAsync(id);
         if (destination == null)
         {
             return NotFound();
         }
 
-        return View(destination);
-    }
-
-    public IActionResult Create()
-    {
-        return View();
+        return Ok(MapToResponse(destination));
     }
 
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Create([Bind("Name,DistanceKm,BaseFare")] Destination destination)
+    public async Task<ActionResult<DestinationResponse>> Create([FromBody] CreateDestinationRequest request)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid)
         {
-            await destinationService.CreateAsync(destination);
-            return RedirectToAction(nameof(Index));
+            return BadRequest(ModelState);
         }
 
-        return View(destination);
+        var destination = new Destination
+        {
+            Name = request.Name,
+            DistanceKm = request.DistanceKm,
+            BaseFare = request.BaseFare
+        };
+
+        await destinationService.CreateAsync(destination);
+        return CreatedAtAction(nameof(GetById), new { id = destination.Id }, MapToResponse(destination));
     }
 
-    public async Task<IActionResult> Edit(int? id)
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] CreateDestinationRequest request)
     {
-        if (id == null)
+        if (!ModelState.IsValid)
         {
-            return NotFound();
+            return BadRequest(ModelState);
         }
 
-        var destination = await destinationService.GetByIdAsync(id.Value);
+        var destination = await destinationService.GetByIdAsync(id);
         if (destination == null)
         {
             return NotFound();
         }
 
-        return View(destination);
+        destination.Name = request.Name;
+        destination.DistanceKm = request.DistanceKm;
+        destination.BaseFare = request.BaseFare;
+
+        await destinationService.UpdateAsync(destination);
+        return NoContent();
     }
 
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Edit(int id, [Bind("Id,Name,DistanceKm,BaseFare")] Destination destination)
+    [HttpDelete("{id:int}")]
+    public async Task<IActionResult> Delete(int id)
     {
-        if (id != destination.Id)
+        if (!await destinationService.ExistsAsync(id))
         {
             return NotFound();
         }
 
-        if (ModelState.IsValid)
-        {
-            if (!await destinationService.ExistsAsync(id))
-            {
-                return NotFound();
-            }
-
-            await destinationService.UpdateAsync(destination);
-            return RedirectToAction(nameof(Index));
-        }
-
-        return View(destination);
-    }
-
-    public async Task<IActionResult> Delete(int? id)
-    {
-        if (id == null)
-        {
-            return NotFound();
-        }
-
-        var destination = await destinationService.GetByIdAsync(id.Value);
-        if (destination == null)
-        {
-            return NotFound();
-        }
-
-        return View(destination);
-    }
-
-    [HttpPost, ActionName("Delete")]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> DeleteConfirmed(int id)
-    {
         await destinationService.DeleteAsync(id);
-        return RedirectToAction(nameof(Index));
+        return NoContent();
     }
+
+    private static DestinationResponse MapToResponse(Destination d) => new(
+        d.Id,
+        d.Name,
+        d.DistanceKm,
+        d.BaseFare,
+        d.Trains.Count
+    );
 }

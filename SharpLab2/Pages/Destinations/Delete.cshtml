@@ -1,0 +1,28 @@
+@page "{id:int}"
+@model SharpLab2.Pages.Destinations.DeleteModel
+@{
+    ViewData["Title"] = "Видалити пункт призначення";
+}
+
+<h2>Видалення пункту призначення</h2>
+
+<h3>Ви впевнені, що бажаєте видалити цей запис?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Назва станції</dt>
+        <dd class="col-sm-9">@Model.Destination.Name</dd>
+
+        <dt class="col-sm-3">Відстань від Чернівців</dt>
+        <dd class="col-sm-9">@Model.Destination.DistanceKm км</dd>
+
+        <dt class="col-sm-3">Базовий тариф</dt>
+        <dd class="col-sm-9">@Model.Destination.BaseFare.ToString("F2") грн</dd>
+    </dl>
+
+    <form method="post">
+        <input type="hidden" asp-for="Destination.Id" />
+        <input type="submit" value="Видалити" class="btn btn-danger" />
+        <a asp-page="./Index" class="btn btn-secondary">Назад до списку</a>
+    </form>
+</div>

@@ -5,8 +5,6 @@ namespace SharpLab2.Data;
 
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public const string ConnectionString = "Data Source=tickets.db";
-
     public DbSet<Destination> Destinations => Set<Destination>();
     public DbSet<CarriageType> CarriageTypes => Set<CarriageType>();
     public DbSet<Passenger> Passengers => Set<Passenger>();
