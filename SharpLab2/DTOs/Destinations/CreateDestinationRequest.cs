@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.Destinations;
 
 public record CreateDestinationRequest(
     [Required] [MaxLength(100)] string Name,

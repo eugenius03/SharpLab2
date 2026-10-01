@@ -1,0 +1,110 @@
+@page "/passengers"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject IPassengerService PassengerService
+
+<PageTitle>Пасажири - Резервування квитків</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Список пасажирів</h2>
+        <p class="text-muted mb-0">Контактні дані та кількість куплених квитків</p>
+    </div>
+    <a class="btn btn-primary" href="passengers/create">Додати пасажира</a>
+</div>
+
+@if (passengers == null)
+{
+    <div class="alert alert-info">Завантаження даних...</div>
+}
+else if (passengers.Count == 0)
+{
+    <div class="alert alert-warning">Пасажирів ще немає. <a href="passengers/create">Додати першого пасажира</a>.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle border">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>ПІБ пасажира</th>
+                    <th>Домашня адреса</th>
+                    <th>Номер телефону</th>
+                    <th class="text-center" style="width: 150px;">Квитків</th>
+                    <th class="text-end" style="width: 220px;">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in passengers)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Id</td>
+                        <td class="fw-semibold">@item.FullName</td>
+                        <td>@item.Address</td>
+                        <td>@item.Phone</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">@item.Tickets.Count</span>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary me-1" href="passengers/edit/@item.Id">Редагувати</a>
+                            <a class="btn btn-sm btn-outline-info me-1" href="passengers/details/@item.Id">Деталі</a>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDelete(item)">Видалити</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (passengerToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Підтвердження видалення</h5>
+                    <button type="button" class="btn-close" @onclick="() => passengerToDelete = null"></button>
+                </div>
+                <div class="modal-body">
+                    Ви дійсно бажаєте видалити пасажира <strong>@passengerToDelete.FullName</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => passengerToDelete = null">Скасувати</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteAsync">Видалити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Passenger>? passengers;
+    private Passenger? passengerToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPassengersAsync();
+    }
+
+    private async Task LoadPassengersAsync()
+    {
+        passengers = await PassengerService.GetAllAsync();
+    }
+
+    private void RequestDelete(Passenger p)
+    {
+        passengerToDelete = p;
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (passengerToDelete != null)
+        {
+            await PassengerService.DeleteAsync(passengerToDelete.Id);
+            passengerToDelete = null;
+            await LoadPassengersAsync();
+        }
+    }
+}

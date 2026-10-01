@@ -1,0 +1,89 @@
+@page "/trains/create"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITrainService TrainService
+@inject IDestinationService DestinationService
+@inject NavigationManager Navigation
+
+<PageTitle>Додати потяг - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Додати новий потяг</h4>
+            </div>
+            <div class="card-body p-4">
+                <EditForm Model="train" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Номер потяга</label>
+                        <InputText class="form-control" @bind-Value="train.TrainNumber" placeholder="Наприклад: 705К" />
+                        <ValidationMessage For="@(() => train.TrainNumber)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Тип потяга</label>
+                        <InputText class="form-control" @bind-Value="train.TrainType" placeholder="Інтерсіті+, Нічний експрес..." />
+                        <ValidationMessage For="@(() => train.TrainType)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Станція призначення</label>
+                        <select class="form-select" @bind="train.DestinationId">
+                            <option value="0">-- Оберіть станцію призначення --</option>
+                            @if (destinations != null)
+                            {
+                                @foreach (var d in destinations)
+                                {
+                                    <option value="@d.Id">@d.Name (@d.DistanceKm км, базова ставка: @d.BaseFare.ToString("N2") грн)</option>
+                                }
+                            }
+                        </select>
+                        <ValidationMessage For="@(() => train.DestinationId)" class="text-danger small" />
+                    </div>
+
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Час відправлення</label>
+                            <InputText class="form-control" @bind-Value="train.DepartureTime" placeholder="HH:mm" />
+                            <ValidationMessage For="@(() => train.DepartureTime)" class="text-danger small" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold">Час прибуття</label>
+                            <InputText class="form-control" @bind-Value="train.ArrivalTime" placeholder="HH:mm" />
+                            <ValidationMessage For="@(() => train.ArrivalTime)" class="text-danger small" />
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-outline-secondary" href="trains">
+                            <i class="bi bi-arrow-left me-1"></i> Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle me-1"></i> Створити
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private Train train = new();
+    private List<Destination>? destinations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        destinations = await DestinationService.GetAllAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        await TrainService.CreateAsync(train);
+        Navigation.NavigateTo("trains");
+    }
+}

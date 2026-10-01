@@ -1,4 +1,4 @@
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.Passengers;
 
 public record PassengerResponse(
     int Id,

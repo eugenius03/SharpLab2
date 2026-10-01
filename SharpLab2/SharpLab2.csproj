@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -8,6 +8,158 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Pages\CarriageTypes\Delete.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Details.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Edit.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Index.cshtml" />
+      <Content Remove="Pages\Destinations\Create.cshtml" />
+      <Content Remove="Pages\Destinations\Delete.cshtml" />
+      <Content Remove="Pages\Destinations\Details.cshtml" />
+      <Content Remove="Pages\Destinations\Edit.cshtml" />
+      <Content Remove="Pages\Destinations\Index.cshtml" />
+      <Content Remove="Pages\Passengers\Create.cshtml" />
+      <Content Remove="Pages\Passengers\Details.cshtml" />
+      <Content Remove="Pages\Passengers\Edit.cshtml" />
+      <Content Remove="Pages\Passengers\Index.cshtml" />
+      <Content Remove="Pages\Tickets\Delete.cshtml" />
+      <Content Remove="Pages\Tickets\Details.cshtml" />
+      <Content Remove="Pages\Tickets\Edit.cshtml" />
+      <Content Remove="Pages\Tickets\Index.cshtml" />
+      <Content Remove="Pages\Trains\Create.cshtml" />
+      <Content Remove="Pages\Trains\Delete.cshtml" />
+      <Content Remove="Pages\Trains\Details.cshtml" />
+      <Content Remove="Pages\Trains\Edit.cshtml" />
+      <Content Remove="Pages\Trains\Index.cshtml" />
+      <Content Remove="Pages\_ViewImports.cshtml" />
+      <Content Remove="Pages\_ViewStart.cshtml" />
+      <Content Remove="Pages\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Pages\CarriageTypes\Delete.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Details.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Edit.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Index.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Create.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Details.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Index.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Create.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Details.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Index.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Details.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Index.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Create.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Details.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Index.cshtml.cs" />
+      <Compile Remove="Pages\Index.cshtml.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Pages\CarriageTypes\Create.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Delete.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Details.cshtml" />
+      <Content Remove="Pages\Destinations\Index.cshtml" />
+      <Content Remove="Pages\Passengers\Create.cshtml" />
+      <Content Remove="Pages\Tickets\Create.cshtml" />
+      <Content Remove="Pages\Tickets\Details.cshtml" />
+      <Content Remove="Pages\Tickets\Edit.cshtml" />
+      <Content Remove="Pages\_ViewStart.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Pages\CarriageTypes\Create.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Delete.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Details.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Index.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Create.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Create.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Details.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Edit.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Details.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Index.cshtml.cs" />
+      <Compile Remove="Pages\Index.cshtml.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Components\Pages\Shared\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Pages\CarriageTypes\Delete.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Details.cshtml" />
+      <Content Remove="Pages\CarriageTypes\Edit.cshtml" />
+      <Content Remove="Pages\Destinations\Create.cshtml" />
+      <Content Remove="Pages\Destinations\Delete.cshtml" />
+      <Content Remove="Pages\Passengers\Create.cshtml" />
+      <Content Remove="Pages\Passengers\Delete.cshtml" />
+      <Content Remove="Pages\Passengers\Details.cshtml" />
+      <Content Remove="Pages\Tickets\Delete.cshtml" />
+      <Content Remove="Pages\Tickets\Details.cshtml" />
+      <Content Remove="Pages\Trains\Create.cshtml" />
+      <Content Remove="Pages\Trains\Delete.cshtml" />
+      <Content Remove="Pages\Trains\Details.cshtml" />
+      <Content Remove="Pages\Index.cshtml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Pages\CarriageTypes\Delete.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Details.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Edit.cshtml.cs" />
+      <Compile Remove="Pages\CarriageTypes\Index.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Create.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Destinations\Index.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Create.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Details.cshtml.cs" />
+      <Compile Remove="Pages\Passengers\Index.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Details.cshtml.cs" />
+      <Compile Remove="Pages\Tickets\Index.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Create.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Delete.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Details.cshtml.cs" />
+      <Compile Remove="Pages\Trains\Index.cshtml.cs" />
+      <Compile Remove="Pages\Index.cshtml.cs" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\CarriageTypes\CarriageTypeCreate.razor" />
+      <AdditionalFiles Include="Components\Pages\CarriageTypes\CarriageTypeDetails.razor" />
+      <AdditionalFiles Include="Components\Pages\CarriageTypes\CarriageTypeEdit.razor" />
+      <AdditionalFiles Include="Components\Pages\CarriageTypes\CarriageTypeIndex.razor" />
+      <AdditionalFiles Include="Components\Pages\Destinations\DestinationCreate.razor" />
+      <AdditionalFiles Include="Components\Pages\Destinations\DestinationDetails.razor" />
+      <AdditionalFiles Include="Components\Pages\Destinations\DestinationEdit.razor" />
+      <AdditionalFiles Include="Components\Pages\Destinations\DestinationIndex.razor" />
+      <AdditionalFiles Include="Components\Pages\Passengers\PassengerCreate.razor" />
+      <AdditionalFiles Include="Components\Pages\Passengers\PassengerDetails.razor" />
+      <AdditionalFiles Include="Components\Pages\Passengers\PassengerEdit.razor" />
+      <AdditionalFiles Include="Components\Pages\Passengers\PassengerIndex.razor" />
+      <AdditionalFiles Include="Components\Pages\Tickets\TicketCreate.razor" />
+      <AdditionalFiles Include="Components\Pages\Tickets\TicketDetails.razor" />
+      <AdditionalFiles Include="Components\Pages\Tickets\TicketEdit.razor" />
+      <AdditionalFiles Include="Components\Pages\Tickets\TicketIndex.razor" />
+      <AdditionalFiles Include="Components\Pages\Trains\TrainCreate.razor" />
+      <AdditionalFiles Include="Components\Pages\Trains\TrainDetails.razor" />
+      <AdditionalFiles Include="Components\Pages\Trains\TrainEdit.razor" />
+      <AdditionalFiles Include="Components\Pages\Trains\TrainIndex.razor" />
     </ItemGroup>
 
 </Project>

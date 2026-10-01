@@ -1,0 +1,97 @@
+@page "/passengers/details/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject IPassengerService PassengerService
+@inject NavigationManager Navigation
+
+<PageTitle>Деталі пасажира - Резервування квитків</PageTitle>
+
+@if (passenger == null)
+{
+    <div class="alert alert-info">Завантаження даних...</div>
+}
+else
+{
+    <div class="mb-4">
+        <h2>Картка пасажира: @passenger.FullName</h2>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">ПІБ</dt>
+            <dd class="col-sm-9">@passenger.FullName</dd>
+
+            <dt class="col-sm-3">Адреса проживання</dt>
+            <dd class="col-sm-9">@passenger.Address</dd>
+
+            <dt class="col-sm-3">Номер телефону</dt>
+            <dd class="col-sm-9">@passenger.Phone</dd>
+
+            <dt class="col-sm-3">Всього замовлень</dt>
+            <dd class="col-sm-9 fw-bold">@passenger.Tickets.Count</dd>
+        </dl>
+    </div>
+
+    <div class="mb-4">
+        <h4>Зарезервовані квитки</h4>
+        @if (passenger.Tickets.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle border">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Поїзд</th>
+                            <th>Пункт призначення</th>
+                            <th>Дата відправлення</th>
+                            <th>Вагон</th>
+                            <th>Тип вагона</th>
+                            <th>Вартість</th>
+                            <th class="text-end" style="width: 120px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in passenger.Tickets)
+                        {
+                            <tr>
+                                <td>@ticket.Id</td>
+                                <td>@ticket.Train?.TrainNumber (@ticket.Train?.TrainType)</td>
+                                <td>@ticket.Train?.Destination?.Name</td>
+                                <td>@ticket.DepartureDate</td>
+                                <td>№@ticket.CarriageNumber</td>
+                                <td>@ticket.CarriageType?.TypeName</td>
+                                <td class="fw-semibold text-success">@ticket.GetTotalPrice().ToString("F2") грн</td>
+                                <td class="text-end">
+                                    <a href="tickets/details/@ticket.Id" class="btn btn-sm btn-outline-info">Деталі</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">У цього пасажира немає зарезервованих квитків.</p>
+        }
+    </div>
+
+    <div>
+        <a href="passengers/edit/@passenger.Id" class="btn btn-warning me-2">Редагувати</a>
+        <a href="passengers" class="btn btn-secondary">Назад до списку</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Passenger? passenger;
+
+    protected override async Task OnInitializedAsync()
+    {
+        passenger = await PassengerService.GetByIdAsync(Id);
+        if (passenger == null)
+        {
+            Navigation.NavigateTo("passengers");
+        }
+    }
+}

@@ -1,0 +1,114 @@
+@page "/trains"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITrainService TrainService
+
+<PageTitle>Поїзди - Резервування квитків</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="mb-1">Список поїздів</h2>
+        <p class="text-muted mb-0">Розклад та маршрути рейсів</p>
+    </div>
+    <a class="btn btn-primary" href="trains/create">Додати поїзд</a>
+</div>
+
+@if (trains == null)
+{
+    <div class="alert alert-info">Завантаження даних...</div>
+}
+else if (trains.Count == 0)
+{
+    <div class="alert alert-warning">Поїздів ще немає. <a href="trains/create">Додати перший поїзд</a>.</div>
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-striped table-hover align-middle border">
+            <thead class="table-light">
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Номер поїзда</th>
+                    <th>Тип</th>
+                    <th>Пункт призначення</th>
+                    <th>Час відправлення</th>
+                    <th>Час прибуття</th>
+                    <th class="text-center" style="width: 120px;">Квитків</th>
+                    <th class="text-end" style="width: 220px;">Дії</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in trains)
+                {
+                    <tr>
+                        <td class="fw-bold">@item.Id</td>
+                        <td class="fw-semibold">@item.TrainNumber</td>
+                        <td>@item.TrainType</td>
+                        <td>@item.Destination?.Name (@item.Destination?.DistanceKm км)</td>
+                        <td>@item.DepartureTime</td>
+                        <td>@item.ArrivalTime</td>
+                        <td class="text-center">
+                            <span class="badge bg-secondary">@item.Tickets.Count</span>
+                        </td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-secondary me-1" href="trains/edit/@item.Id">Редагувати</a>
+                            <a class="btn btn-sm btn-outline-info me-1" href="trains/details/@item.Id">Деталі</a>
+                            <button class="btn btn-sm btn-outline-danger" @onclick="() => RequestDelete(item)">Видалити</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (trainToDelete != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Підтвердження видалення</h5>
+                    <button type="button" class="btn-close" @onclick="() => trainToDelete = null"></button>
+                </div>
+                <div class="modal-body">
+                    Ви дійсно бажаєте видалити поїзд <strong>№@trainToDelete.TrainNumber (@trainToDelete.Destination?.Name)</strong>?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => trainToDelete = null">Скасувати</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteAsync">Видалити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<Train>? trains;
+    private Train? trainToDelete;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTrainsAsync();
+    }
+
+    private async Task LoadTrainsAsync()
+    {
+        trains = await TrainService.GetAllAsync();
+    }
+
+    private void RequestDelete(Train t)
+    {
+        trainToDelete = t;
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (trainToDelete != null)
+        {
+            await TrainService.DeleteAsync(trainToDelete.Id);
+            trainToDelete = null;
+            await LoadTrainsAsync();
+        }
+    }
+}

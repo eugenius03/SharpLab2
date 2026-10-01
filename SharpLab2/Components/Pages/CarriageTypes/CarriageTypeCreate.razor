@@ -1,0 +1,54 @@
+@page "/carriagetypes/create"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ICarriageTypeService CarriageTypeService
+@inject NavigationManager Navigation
+
+<PageTitle>Додати тип вагона - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0"><i class="bi bi-box me-2"></i>Додати новий тип вагона</h4>
+            </div>
+            <div class="card-body p-4">
+                <EditForm Model="carriageType" OnValidSubmit="HandleValidSubmit">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="alert alert-danger" />
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Назва типу вагона</label>
+                        <InputText class="form-control" @bind-Value="carriageType.TypeName" placeholder="Купе, Люкс, Плацкарт, 1 клас..." />
+                        <ValidationMessage For="@(() => carriageType.TypeName)" class="text-danger small" />
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Надбавка до вартості (грн)</label>
+                        <InputNumber min="0" step="0.01" class="form-control" @bind-Value="carriageType.Surcharge" />
+                        <ValidationMessage For="@(() => carriageType.Surcharge)" class="text-danger small" />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <a class="btn btn-outline-secondary" href="carriagetypes">
+                            <i class="bi bi-arrow-left me-1"></i> Скасувати
+                        </a>
+                        <button type="submit" class="btn btn-success px-4">
+                            <i class="bi bi-check-circle me-1"></i> Створити
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private CarriageType carriageType = new();
+
+    private async Task HandleValidSubmit()
+    {
+        await CarriageTypeService.CreateAsync(carriageType);
+        Navigation.NavigateTo("carriagetypes");
+    }
+}

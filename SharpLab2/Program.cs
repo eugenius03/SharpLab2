@@ -1,19 +1,25 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
+using SharpLab2.Components;
 using SharpLab2.Data;
 using SharpLab2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
+builder.Services.AddRazorComponents()
+    .AddInteractiveServerComponents();
+
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
         options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
     });
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(AppDbContext.ConnectionString));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IPassengerService, PassengerService>();
@@ -32,8 +38,11 @@ using (var scope = app.Services.CreateScope())
 
 app.UseStaticFiles();
 app.UseRouting();
+app.UseAntiforgery();
 
-app.MapRazorPages();
+app.MapRazorComponents<App>()
+    .AddInteractiveServerRenderMode();
+
 app.MapControllers();
 
 app.Run();

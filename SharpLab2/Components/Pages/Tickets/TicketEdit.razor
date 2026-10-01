@@ -1,0 +1,182 @@
+@page "/tickets/edit/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITicketService TicketService
+@inject IPassengerService PassengerService
+@inject ITrainService TrainService
+@inject ICarriageTypeService CarriageTypeService
+@inject NavigationManager Navigation
+
+<PageTitle>Редагування квитка - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Редагування квитка №@Id</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (ticket == null)
+                {
+                    <div class="alert alert-info">Завантаження даних квитка...</div>
+                }
+                else
+                {
+                    <EditForm Model="ticket" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Пасажир</label>
+                            <select class="form-select" @bind="ticket.PassengerId">
+                                @if (passengers != null)
+                                {
+                                    @foreach (var p in passengers)
+                                    {
+                                        <option value="@p.Id">@p.FullName (@p.Phone)</option>
+                                    }
+                                }
+                            </select>
+                            <ValidationMessage For="@(() => ticket.PassengerId)" class="text-danger small" />
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Потяг та напрямок</label>
+                                <select class="form-select" @bind="ticket.TrainId">
+                                    @if (trains != null)
+                                    {
+                                        @foreach (var tr in trains)
+                                        {
+                                            <option value="@tr.Id">№@tr.TrainNumber (@tr.TrainType) - @tr.Destination?.Name (@tr.Destination?.DistanceKm км)</option>
+                                        }
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => ticket.TrainId)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Тип вагона</label>
+                                <select class="form-select" @bind="ticket.CarriageTypeId">
+                                    @if (carriageTypes != null)
+                                    {
+                                        @foreach (var ct in carriageTypes)
+                                        {
+                                            <option value="@ct.Id">@ct.TypeName (+@ct.Surcharge.ToString("N2") грн)</option>
+                                        }
+                                    }
+                                </select>
+                                <ValidationMessage For="@(() => ticket.CarriageTypeId)" class="text-danger small" />
+                            </div>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Номер вагона (1-30)</label>
+                                <InputNumber min="1" max="30" class="form-control" @bind-Value="ticket.CarriageNumber" />
+                                <ValidationMessage For="@(() => ticket.CarriageNumber)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Дата відправлення</label>
+                                <InputText type="date" class="form-control" @bind-Value="ticket.DepartureDate" />
+                                <ValidationMessage For="@(() => ticket.DepartureDate)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label fw-bold">Надбавка за терміновість (грн)</label>
+                                <InputNumber min="0" step="0.01" class="form-control" @bind-Value="ticket.UrgencySurcharge" />
+                                <ValidationMessage For="@(() => ticket.UrgencySurcharge)" class="text-danger small" />
+                            </div>
+                        </div>
+
+                        <div class="card bg-light border-warning mb-4">
+                            <div class="card-body">
+                                <h6 class="card-title text-dark fw-bold mb-2">
+                                    <i class="bi bi-calculator me-1"></i> Оновлена вартість квитка
+                                </h6>
+                                <div class="row text-center">
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block">Базова ставка</small>
+                                        <span class="fw-semibold">@SelectedTrainBaseFare.ToString("N2") грн</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block">Надбавка за вагон</small>
+                                        <span class="fw-semibold">+@SelectedCarriageSurcharge.ToString("N2") грн</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block">Терміновість</small>
+                                        <span class="fw-semibold">+@ticket.UrgencySurcharge.ToString("N2") грн</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <small class="text-muted d-block">Разом до сплати</small>
+                                        <span class="fs-5 fw-bold text-success">@EstimatedTotal.ToString("N2") грн</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-outline-secondary" href="tickets">
+                                <i class="bi bi-arrow-left me-1"></i> Скасувати
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-save me-1"></i> Зберегти зміни
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ticket? ticket;
+    private List<Passenger>? passengers;
+    private List<Train>? trains;
+    private List<CarriageType>? carriageTypes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ticket = await TicketService.GetByIdAsync(Id);
+        if (ticket == null)
+        {
+            Navigation.NavigateTo("tickets");
+            return;
+        }
+
+        passengers = await PassengerService.GetAllAsync();
+        trains = await TrainService.GetAllAsync();
+        carriageTypes = await CarriageTypeService.GetAllAsync();
+    }
+
+    private decimal SelectedTrainBaseFare
+    {
+        get
+        {
+            var train = trains?.FirstOrDefault(t => t.Id == ticket?.TrainId);
+            return train?.Destination?.BaseFare ?? 0;
+        }
+    }
+
+    private decimal SelectedCarriageSurcharge
+    {
+        get
+        {
+            var ct = carriageTypes?.FirstOrDefault(c => c.Id == ticket?.CarriageTypeId);
+            return ct?.Surcharge ?? 0;
+        }
+    }
+
+    private decimal EstimatedTotal => SelectedTrainBaseFare + SelectedCarriageSurcharge + (ticket?.UrgencySurcharge ?? 0);
+
+    private async Task HandleValidSubmit()
+    {
+        if (ticket != null)
+        {
+            await TicketService.UpdateAsync(ticket);
+            Navigation.NavigateTo("tickets");
+        }
+    }
+}

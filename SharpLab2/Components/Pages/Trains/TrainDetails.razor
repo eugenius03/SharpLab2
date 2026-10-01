@@ -1,0 +1,93 @@
+@page "/trains/details/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITrainService TrainService
+@inject NavigationManager Navigation
+
+<PageTitle>Деталі поїзда - Резервування квитків</PageTitle>
+
+@if (train == null)
+{
+    <div class="alert alert-info">Завантаження даних...</div>
+}
+else
+{
+    <div class="mb-4">
+        <h2>Поїзд №@train.TrainNumber</h2>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Номер поїзда</dt>
+            <dd class="col-sm-9">@train.TrainNumber</dd>
+
+            <dt class="col-sm-3">Тип поїзда</dt>
+            <dd class="col-sm-9">@train.TrainType</dd>
+
+            <dt class="col-sm-3">Пункт призначення</dt>
+            <dd class="col-sm-9">@train.Destination?.Name (@train.Destination?.DistanceKm км)</dd>
+
+            <dt class="col-sm-3">Час відправлення / прибуття</dt>
+            <dd class="col-sm-9">@train.DepartureTime — @train.ArrivalTime</dd>
+        </dl>
+    </div>
+
+    <div class="mb-4">
+        <h4>Квитки на цей рейс (@train.Tickets.Count)</h4>
+        @if (train.Tickets.Count > 0)
+        {
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle border">
+                    <thead class="table-light">
+                        <tr>
+                            <th style="width: 50px;">#</th>
+                            <th>Пасажир</th>
+                            <th>Дата</th>
+                            <th>Вагон</th>
+                            <th>Сума</th>
+                            <th class="text-end" style="width: 120px;"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var ticket in train.Tickets)
+                        {
+                            <tr>
+                                <td>@ticket.Id</td>
+                                <td>@ticket.Passenger?.FullName</td>
+                                <td>@ticket.DepartureDate</td>
+                                <td>№@ticket.CarriageNumber</td>
+                                <td class="fw-semibold text-success">@ticket.GetTotalPrice().ToString("F2") грн</td>
+                                <td class="text-end">
+                                    <a href="tickets/details/@ticket.Id" class="btn btn-sm btn-outline-info">Деталі</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <p class="text-muted">Немає заброньованих квитків.</p>
+        }
+    </div>
+
+    <div>
+        <a href="trains/edit/@train.Id" class="btn btn-warning me-2">Редагувати</a>
+        <a href="trains" class="btn btn-secondary">Назад до списку</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Train? train;
+
+    protected override async Task OnInitializedAsync()
+    {
+        train = await TrainService.GetByIdAsync(Id);
+        if (train == null)
+        {
+            Navigation.NavigateTo("trains");
+        }
+    }
+}

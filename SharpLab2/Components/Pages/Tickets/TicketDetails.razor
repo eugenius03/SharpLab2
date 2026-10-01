@@ -1,0 +1,169 @@
+@page "/tickets/details/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITicketService TicketService
+@inject NavigationManager Navigation
+
+<PageTitle>Деталі квитка - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0"><i class="bi bi-info-circle me-2"></i>Деталі квитка №@Id</h4>
+                <span class="badge bg-light text-dark fs-6">Зарезервовано</span>
+            </div>
+            <div class="card-body p-4">
+                @if (ticket == null)
+                {
+                    <div class="alert alert-info">Завантаження даних квитка...</div>
+                }
+                else
+                {
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary fw-bold mb-3">
+                                        <i class="bi bi-person me-1"></i> Дані пасажира
+                                    </h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-5 text-muted">ПІБ:</dt>
+                                        <dd class="col-sm-7 fw-semibold">@ticket.Passenger?.FullName</dd>
+                                        <dt class="col-sm-5 text-muted">Адреса:</dt>
+                                        <dd class="col-sm-7">@ticket.Passenger?.Address</dd>
+                                        <dt class="col-sm-5 text-muted">Телефон:</dt>
+                                        <dd class="col-sm-7">@ticket.Passenger?.Phone</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="card h-100 border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary fw-bold mb-3">
+                                        <i class="bi bi-train-front me-1"></i> Рейс та потяг
+                                    </h6>
+                                    <dl class="row mb-0">
+                                        <dt class="col-sm-5 text-muted">Потяг:</dt>
+                                        <dd class="col-sm-7 fw-semibold">№@ticket.Train?.TrainNumber (@ticket.Train?.TrainType)</dd>
+                                        <dt class="col-sm-5 text-muted">Напрямок:</dt>
+                                        <dd class="col-sm-7">@ticket.Train?.Destination?.Name</dd>
+                                        <dt class="col-sm-5 text-muted">Відстань:</dt>
+                                        <dd class="col-sm-7">@ticket.Train?.Destination?.DistanceKm км</dd>
+                                        <dt class="col-sm-5 text-muted">Відправлення:</dt>
+                                        <dd class="col-sm-7">@ticket.Train?.DepartureTime (@ticket.DepartureDate)</dd>
+                                        <dt class="col-sm-5 text-muted">Прибуття:</dt>
+                                        <dd class="col-sm-7">@ticket.Train?.ArrivalTime</dd>
+                                    </dl>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <div class="card border-0 bg-light">
+                                <div class="card-body">
+                                    <h6 class="card-title text-primary fw-bold mb-3">
+                                        <i class="bi bi-calculator me-1"></i> Місце та розрахунок вартості
+                                    </h6>
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered bg-white mb-0">
+                                            <tbody>
+                                                <tr>
+                                                    <td class="text-muted w-50">Номер вагона</td>
+                                                    <td class="fw-semibold">№@ticket.CarriageNumber</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Тип вагона</td>
+                                                    <td class="fw-semibold">@ticket.CarriageType?.TypeName</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Базова вартість проїзду (станція)</td>
+                                                    <td>@ticket.Train?.Destination?.BaseFare.ToString("N2") грн</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Надбавка за тип вагона</td>
+                                                    <td>+@ticket.CarriageType?.Surcharge.ToString("N2") грн</td>
+                                                </tr>
+                                                <tr>
+                                                    <td class="text-muted">Надбавка за терміновість</td>
+                                                    <td>+@ticket.UrgencySurcharge.ToString("N2") грн</td>
+                                                </tr>
+                                                <tr class="table-success">
+                                                    <td class="fw-bold fs-5">Повна вартість квитка</td>
+                                                    <td class="fw-bold fs-5 text-success">@ticket.GetTotalPrice().ToString("N2") грн</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        <a class="btn btn-outline-secondary" href="tickets">
+                            <i class="bi bi-arrow-left me-1"></i> До списку
+                        </a>
+                        <div>
+                            <a class="btn btn-warning me-2" href="tickets/edit/@ticket.Id">
+                                <i class="bi bi-pencil me-1"></i> Редагувати
+                            </a>
+                            <button class="btn btn-danger" @onclick="() => showDeleteModal = true">
+                                <i class="bi bi-trash me-1"></i> Видалити
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (showDeleteModal && ticket != null)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-danger">Підтвердження видалення</h5>
+                    <button type="button" class="btn-close" @onclick="() => showDeleteModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    Ви дійсно бажаєте видалити квиток №@ticket.Id?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => showDeleteModal = false">Скасувати</button>
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDeleteAsync">Видалити</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Ticket? ticket;
+    private bool showDeleteModal;
+
+    protected override async Task OnInitializedAsync()
+    {
+        ticket = await TicketService.GetByIdAsync(Id);
+        if (ticket == null)
+        {
+            Navigation.NavigateTo("tickets");
+        }
+    }
+
+    private async Task ConfirmDeleteAsync()
+    {
+        if (ticket != null)
+        {
+            await TicketService.DeleteAsync(ticket.Id);
+            Navigation.NavigateTo("tickets");
+        }
+    }
+}

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.Tickets;
 
 public record CreateTicketRequest(
     [Range(1, int.MaxValue)] int PassengerId,

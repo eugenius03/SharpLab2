@@ -1,0 +1,108 @@
+@page "/trains/edit/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ITrainService TrainService
+@inject IDestinationService DestinationService
+@inject NavigationManager Navigation
+
+<PageTitle>Редагувати потяг - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Редагування потяга №@Id</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (train == null)
+                {
+                    <div class="alert alert-info">Завантаження даних...</div>
+                }
+                else
+                {
+                    <EditForm Model="train" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Номер потяга</label>
+                            <InputText class="form-control" @bind-Value="train.TrainNumber" />
+                            <ValidationMessage For="@(() => train.TrainNumber)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Тип потяга</label>
+                            <InputText class="form-control" @bind-Value="train.TrainType" />
+                            <ValidationMessage For="@(() => train.TrainType)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Станція призначення</label>
+                            <select class="form-select" @bind="train.DestinationId">
+                                @if (destinations != null)
+                                {
+                                    @foreach (var d in destinations)
+                                    {
+                                        <option value="@d.Id">@d.Name (@d.DistanceKm км, базова ставка: @d.BaseFare.ToString("N2") грн)</option>
+                                    }
+                                }
+                            </select>
+                            <ValidationMessage For="@(() => train.DestinationId)" class="text-danger small" />
+                        </div>
+
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Час відправлення</label>
+                                <InputText class="form-control" @bind-Value="train.DepartureTime" />
+                                <ValidationMessage For="@(() => train.DepartureTime)" class="text-danger small" />
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold">Час прибуття</label>
+                                <InputText class="form-control" @bind-Value="train.ArrivalTime" />
+                                <ValidationMessage For="@(() => train.ArrivalTime)" class="text-danger small" />
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-outline-secondary" href="trains">
+                                <i class="bi bi-arrow-left me-1"></i> Скасувати
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-save me-1"></i> Зберегти
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private Train? train;
+    private List<Destination>? destinations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        train = await TrainService.GetByIdAsync(Id);
+        if (train == null)
+        {
+            Navigation.NavigateTo("trains");
+            return;
+        }
+
+        destinations = await DestinationService.GetAllAsync();
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (train != null)
+        {
+            await TrainService.UpdateAsync(train);
+            Navigation.NavigateTo("trains");
+        }
+    }
+}

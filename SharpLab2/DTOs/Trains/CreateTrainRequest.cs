@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.Trains;
 
 public record CreateTrainRequest(
     [Required] [MaxLength(20)] string TrainNumber,

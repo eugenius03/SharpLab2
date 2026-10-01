@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
-using SharpLab2.DTOs;
+using SharpLab2.DTOs.Passengers;
 using SharpLab2.Models;
 using SharpLab2.Services;
 

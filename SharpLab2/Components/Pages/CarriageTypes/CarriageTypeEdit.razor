@@ -1,0 +1,76 @@
+@page "/carriagetypes/edit/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ICarriageTypeService CarriageTypeService
+@inject NavigationManager Navigation
+
+<PageTitle>Редагувати тип вагона - Резервування квитків</PageTitle>
+
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card shadow-sm">
+            <div class="card-header bg-warning text-dark">
+                <h4 class="mb-0"><i class="bi bi-pencil-square me-2"></i>Редагування типу вагона №@Id</h4>
+            </div>
+            <div class="card-body p-4">
+                @if (carriageType == null)
+                {
+                    <div class="alert alert-info">Завантаження даних...</div>
+                }
+                else
+                {
+                    <EditForm Model="carriageType" OnValidSubmit="HandleValidSubmit">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary class="alert alert-danger" />
+
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Назва типу вагона</label>
+                            <InputText class="form-control" @bind-Value="carriageType.TypeName" />
+                            <ValidationMessage For="@(() => carriageType.TypeName)" class="text-danger small" />
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold">Надбавка до вартості (грн)</label>
+                            <InputNumber class="form-control" @bind-Value="carriageType.Surcharge" />
+                            <ValidationMessage For="@(() => carriageType.Surcharge)" class="text-danger small" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a class="btn btn-outline-secondary" href="carriagetypes">
+                                <i class="bi bi-arrow-left me-1"></i> Скасувати
+                            </a>
+                            <button type="submit" class="btn btn-warning px-4">
+                                <i class="bi bi-save me-1"></i> Зберегти
+                            </button>
+                        </div>
+                    </EditForm>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CarriageType? carriageType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        carriageType = await CarriageTypeService.GetByIdAsync(Id);
+        if (carriageType == null)
+        {
+            Navigation.NavigateTo("carriagetypes");
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (carriageType != null)
+        {
+            await CarriageTypeService.UpdateAsync(carriageType);
+            Navigation.NavigateTo("carriagetypes");
+        }
+    }
+}

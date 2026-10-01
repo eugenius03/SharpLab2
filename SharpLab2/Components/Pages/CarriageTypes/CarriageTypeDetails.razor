@@ -1,0 +1,48 @@
+@page "/carriagetypes/details/{id:int}"
+@using SharpLab2.Models
+@using SharpLab2.Services
+@inject ICarriageTypeService CarriageTypeService
+@inject NavigationManager Navigation
+
+<PageTitle>Деталі типу вагона - Резервування квитків</PageTitle>
+
+@if (carriageType == null)
+{
+    <div class="alert alert-info">Завантаження даних...</div>
+}
+else
+{
+    <h2>Тип вагона: @carriageType.TypeName</h2>
+
+    <div>
+        <hr />
+        <dl class="row">
+            <dt class="col-sm-3">Категорія вагона</dt>
+            <dd class="col-sm-9">@carriageType.TypeName</dd>
+
+            <dt class="col-sm-3">Встановлена доплата</dt>
+            <dd class="col-sm-9 fw-bold text-success">@carriageType.Surcharge.ToString("F2") грн</dd>
+        </dl>
+    </div>
+
+    <div>
+        <a href="carriagetypes/edit/@carriageType.Id" class="btn btn-warning me-2">Редагувати</a>
+        <a href="carriagetypes" class="btn btn-secondary">Назад до списку</a>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private CarriageType? carriageType;
+
+    protected override async Task OnInitializedAsync()
+    {
+        carriageType = await CarriageTypeService.GetByIdAsync(Id);
+        if (carriageType == null)
+        {
+            Navigation.NavigateTo("carriagetypes");
+        }
+    }
+}

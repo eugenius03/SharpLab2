@@ -1,0 +1,88 @@
+@page "/"
+@inject ITicketService TicketService
+@inject IPassengerService PassengerService
+@inject ITrainService TrainService
+@inject IDestinationService DestinationService
+@inject ICarriageTypeService CarriageTypeService
+
+<PageTitle>Головна - Резервування квитків</PageTitle>
+
+<div class="text-center my-4">
+    <h1 class="display-5">Резервування квитків</h1>
+    <p class="lead">Лабораторна робота №5: ASP.NET Core Blazor та Entity Framework Core.</p>
+</div>
+
+<hr />
+
+<div class="row mt-4">
+    <div class="col-md-6 mb-4">
+        <h4>Статистика системи</h4>
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Квитки
+                <span class="badge bg-primary rounded-pill">@ticketsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пасажири
+                <span class="badge bg-primary rounded-pill">@passengersCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Поїзди
+                <span class="badge bg-primary rounded-pill">@trainsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Пункти призначення
+                <span class="badge bg-primary rounded-pill">@destinationsCount</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Типи вагонів
+                <span class="badge bg-primary rounded-pill">@carriageTypesCount</span>
+            </li>
+        </ul>
+    </div>
+    <div class="col-md-6 mb-4">
+        <h4>Розділи Blazor</h4>
+        <div class="list-group mb-3">
+            <a href="tickets" class="list-group-item list-group-item-action">Управління квитками</a>
+            <a href="passengers" class="list-group-item list-group-item-action">Управління пасажирами</a>
+            <a href="trains" class="list-group-item list-group-item-action">Управління поїздами</a>
+            <a href="destinations" class="list-group-item list-group-item-action">Управління пунктами призначення</a>
+            <a href="carriagetypes" class="list-group-item list-group-item-action">Управління типами вагонів</a>
+        </div>
+
+        <h4>RESTful Web API (JSON)</h4>
+        <div class="list-group">
+            <a href="/api/tickets" target="_blank" class="list-group-item list-group-item-action">GET /api/tickets</a>
+            <a href="/api/passengers" target="_blank" class="list-group-item list-group-item-action">GET /api/passengers</a>
+            <a href="/api/trains" target="_blank" class="list-group-item list-group-item-action">GET /api/trains</a>
+            <a href="/api/destinations" target="_blank" class="list-group-item list-group-item-action">GET /api/destinations</a>
+            <a href="/api/carriagetypes" target="_blank" class="list-group-item list-group-item-action">GET /api/carriagetypes</a>
+        </div>
+    </div>
+</div>
+
+@code {
+    private int ticketsCount;
+    private int passengersCount;
+    private int trainsCount;
+    private int destinationsCount;
+    private int carriageTypesCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var tickets = await TicketService.GetAllAsync();
+        ticketsCount = tickets.Count;
+
+        var passengers = await PassengerService.GetAllAsync();
+        passengersCount = passengers.Count;
+
+        var trains = await TrainService.GetAllAsync();
+        trainsCount = trains.Count;
+
+        var destinations = await DestinationService.GetAllAsync();
+        destinationsCount = destinations.Count;
+
+        var carriageTypes = await CarriageTypeService.GetAllAsync();
+        carriageTypesCount = carriageTypes.Count;
+    }
+}
