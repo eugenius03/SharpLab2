@@ -1,8 +1,8 @@
 @page "/trains/create"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITrainService TrainService
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject ITrainHubClient TrainClient
+@inject IDestinationHubClient DestinationClient
 @inject NavigationManager Navigation
 
 <PageTitle>Додати потяг - Резервування квитків</PageTitle>
@@ -78,12 +78,12 @@
 
     protected override async Task OnInitializedAsync()
     {
-        destinations = await DestinationService.GetAllAsync();
+        destinations = await DestinationClient.GetAllAsync();
     }
 
     private async Task HandleValidSubmit()
     {
-        await TrainService.CreateAsync(train);
+        await TrainClient.CreateAsync(train);
         Navigation.NavigateTo("trains");
     }
 }

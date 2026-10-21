@@ -1,8 +1,8 @@
 @page "/trains/edit/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITrainService TrainService
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject ITrainHubClient TrainClient
+@inject IDestinationHubClient DestinationClient
 @inject NavigationManager Navigation
 
 <PageTitle>Редагувати потяг - Резервування квитків</PageTitle>
@@ -20,6 +20,11 @@
                 }
                 else
                 {
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-warning">@errorMessage <a href="trains">Повернутися до списку</a>.</div>
+                    }
+
                     <EditForm Model="train" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <ValidationSummary class="alert alert-danger" />
@@ -84,24 +89,30 @@
 
     private Train? train;
     private List<Destination>? destinations;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        train = await TrainService.GetByIdAsync(Id);
+        train = await TrainClient.GetByIdAsync(Id);
         if (train == null)
         {
             Navigation.NavigateTo("trains");
             return;
         }
 
-        destinations = await DestinationService.GetAllAsync();
+        destinations = await DestinationClient.GetAllAsync();
     }
 
     private async Task HandleValidSubmit()
     {
         if (train != null)
         {
-            await TrainService.UpdateAsync(train);
+            if (!await TrainClient.TryUpdateAsync(train))
+            {
+                errorMessage = "Не вдалося зберегти зміни: цей запис уже видалено або він не існує.";
+                return;
+            }
+
             Navigation.NavigateTo("trains");
         }
     }

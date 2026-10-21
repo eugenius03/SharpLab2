@@ -1,7 +1,7 @@
 @page "/destinations/create"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject IDestinationHubClient DestinationClient
 @inject NavigationManager Navigation
 
 <PageTitle>Додати станцію - Резервування квитків</PageTitle>
@@ -54,7 +54,7 @@
 
     private async Task HandleValidSubmit()
     {
-        await DestinationService.CreateAsync(destination);
+        await DestinationClient.CreateAsync(destination);
         Navigation.NavigateTo("destinations");
     }
 }

@@ -1,7 +1,8 @@
 @page "/passengers"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IPassengerService PassengerService
+@using SharpLab2.HubClients
+@inject IPassengerHubClient PassengerClient
+@implements IDisposable
 
 <PageTitle>Пасажири - Резервування квитків</PageTitle>
 
@@ -12,6 +13,14 @@
     </div>
     <a class="btn btn-primary" href="passengers/create">Додати пасажира</a>
 </div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
 
 @if (passengers == null)
 {
@@ -82,15 +91,31 @@ else
 @code {
     private List<Passenger>? passengers;
     private Passenger? passengerToDelete;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        PassengerClient.Changed += OnDataChanged;
         await LoadPassengersAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadPassengersAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        PassengerClient.Changed -= OnDataChanged;
     }
 
     private async Task LoadPassengersAsync()
     {
-        passengers = await PassengerService.GetAllAsync();
+        passengers = await PassengerClient.GetAllAsync();
     }
 
     private void RequestDelete(Passenger p)
@@ -102,7 +127,11 @@ else
     {
         if (passengerToDelete != null)
         {
-            await PassengerService.DeleteAsync(passengerToDelete.Id);
+            if (!await PassengerClient.TryDeleteAsync(passengerToDelete.Id))
+            {
+                errorMessage = "Цей запис уже видалено або він не існує.";
+            }
+
             passengerToDelete = null;
             await LoadPassengersAsync();
         }

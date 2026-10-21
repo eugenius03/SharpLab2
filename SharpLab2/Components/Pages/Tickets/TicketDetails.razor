@@ -1,7 +1,7 @@
 @page "/tickets/details/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITicketService TicketService
+@using SharpLab2.HubClients
+@inject ITicketHubClient TicketClient
 @inject NavigationManager Navigation
 
 <PageTitle>Деталі квитка - Резервування квитків</PageTitle>
@@ -151,7 +151,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        ticket = await TicketService.GetByIdAsync(Id);
+        ticket = await TicketClient.GetByIdAsync(Id);
         if (ticket == null)
         {
             Navigation.NavigateTo("tickets");
@@ -162,7 +162,7 @@
     {
         if (ticket != null)
         {
-            await TicketService.DeleteAsync(ticket.Id);
+            await TicketClient.DeleteAsync(ticket.Id);
             Navigation.NavigateTo("tickets");
         }
     }

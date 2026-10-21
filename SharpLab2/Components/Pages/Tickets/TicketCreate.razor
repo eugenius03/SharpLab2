@@ -1,10 +1,10 @@
 @page "/tickets/create"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITicketService TicketService
-@inject IPassengerService PassengerService
-@inject ITrainService TrainService
-@inject ICarriageTypeService CarriageTypeService
+@using SharpLab2.HubClients
+@inject ITicketHubClient TicketClient
+@inject IPassengerHubClient PassengerClient
+@inject ITrainHubClient TrainClient
+@inject ICarriageTypeHubClient CarriageTypeClient
 @inject NavigationManager Navigation
 
 <PageTitle>Оформлення квитка - Резервування квитків</PageTitle>
@@ -138,9 +138,9 @@
 
     protected override async Task OnInitializedAsync()
     {
-        passengers = await PassengerService.GetAllAsync();
-        trains = await TrainService.GetAllAsync();
-        carriageTypes = await CarriageTypeService.GetAllAsync();
+        passengers = await PassengerClient.GetAllAsync();
+        trains = await TrainClient.GetAllAsync();
+        carriageTypes = await CarriageTypeClient.GetAllAsync();
     }
 
     private decimal SelectedTrainBaseFare
@@ -167,7 +167,7 @@
 
     private async Task HandleValidSubmit()
     {
-        await TicketService.CreateAsync(ticket);
+        await TicketClient.CreateAsync(ticket);
         Navigation.NavigateTo("tickets");
     }
 }

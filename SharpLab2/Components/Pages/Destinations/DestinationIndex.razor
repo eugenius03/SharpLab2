@@ -1,7 +1,8 @@
 @page "/destinations"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject IDestinationHubClient DestinationClient
+@implements IDisposable
 
 <PageTitle>Пункти призначення - Резервування квитків</PageTitle>
 
@@ -12,6 +13,14 @@
     </div>
     <a class="btn btn-primary" href="destinations/create">Додати пункт</a>
 </div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
 
 @if (destinations == null)
 {
@@ -82,15 +91,31 @@ else
 @code {
     private List<Destination>? destinations;
     private Destination? destinationToDelete;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        DestinationClient.Changed += OnDataChanged;
         await LoadDestinationsAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadDestinationsAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        DestinationClient.Changed -= OnDataChanged;
     }
 
     private async Task LoadDestinationsAsync()
     {
-        destinations = await DestinationService.GetAllAsync();
+        destinations = await DestinationClient.GetAllAsync();
     }
 
     private void RequestDelete(Destination d)
@@ -102,7 +127,11 @@ else
     {
         if (destinationToDelete != null)
         {
-            await DestinationService.DeleteAsync(destinationToDelete.Id);
+            if (!await DestinationClient.TryDeleteAsync(destinationToDelete.Id))
+            {
+                errorMessage = "Цей запис уже видалено або він не існує.";
+            }
+
             destinationToDelete = null;
             await LoadDestinationsAsync();
         }
