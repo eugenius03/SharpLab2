@@ -1,7 +1,7 @@
 @page "/destinations/edit/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject IDestinationHubClient DestinationClient
 @inject NavigationManager Navigation
 
 <PageTitle>Редагувати станцію - Резервування квитків</PageTitle>
@@ -19,6 +19,11 @@
                 }
                 else
                 {
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-warning">@errorMessage <a href="destinations">Повернутися до списку</a>.</div>
+                    }
+
                     <EditForm Model="destination" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <ValidationSummary class="alert alert-danger" />
@@ -61,10 +66,11 @@
     public int Id { get; set; }
 
     private Destination? destination;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        destination = await DestinationService.GetByIdAsync(Id);
+        destination = await DestinationClient.GetByIdAsync(Id);
         if (destination == null)
         {
             Navigation.NavigateTo("destinations");
@@ -75,7 +81,12 @@
     {
         if (destination != null)
         {
-            await DestinationService.UpdateAsync(destination);
+            if (!await DestinationClient.TryUpdateAsync(destination))
+            {
+                errorMessage = "Не вдалося зберегти зміни: цей запис уже видалено або він не існує.";
+                return;
+            }
+
             Navigation.NavigateTo("destinations");
         }
     }

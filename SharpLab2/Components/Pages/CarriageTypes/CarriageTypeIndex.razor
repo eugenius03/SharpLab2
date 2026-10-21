@@ -1,7 +1,8 @@
 @page "/carriagetypes"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ICarriageTypeService CarriageTypeService
+@using SharpLab2.HubClients
+@inject ICarriageTypeHubClient CarriageTypeClient
+@implements IDisposable
 
 <PageTitle>Типи вагонів - Резервування квитків</PageTitle>
 
@@ -12,6 +13,14 @@
     </div>
     <a class="btn btn-primary" href="carriagetypes/create">Додати тип вагона</a>
 </div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
 
 @if (carriageTypes == null)
 {
@@ -76,15 +85,31 @@ else
 @code {
     private List<CarriageType>? carriageTypes;
     private CarriageType? typeToDelete;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        CarriageTypeClient.Changed += OnDataChanged;
         await LoadCarriageTypesAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadCarriageTypesAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        CarriageTypeClient.Changed -= OnDataChanged;
     }
 
     private async Task LoadCarriageTypesAsync()
     {
-        carriageTypes = await CarriageTypeService.GetAllAsync();
+        carriageTypes = await CarriageTypeClient.GetAllAsync();
     }
 
     private void RequestDelete(CarriageType ct)
@@ -96,7 +121,11 @@ else
     {
         if (typeToDelete != null)
         {
-            await CarriageTypeService.DeleteAsync(typeToDelete.Id);
+            if (!await CarriageTypeClient.TryDeleteAsync(typeToDelete.Id))
+            {
+                errorMessage = "Цей запис уже видалено або він не існує.";
+            }
+
             typeToDelete = null;
             await LoadCarriageTypesAsync();
         }

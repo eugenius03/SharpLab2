@@ -1,7 +1,8 @@
 @page "/trains"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITrainService TrainService
+@using SharpLab2.HubClients
+@inject ITrainHubClient TrainClient
+@implements IDisposable
 
 <PageTitle>Поїзди - Резервування квитків</PageTitle>
 
@@ -12,6 +13,14 @@
     </div>
     <a class="btn btn-primary" href="trains/create">Додати поїзд</a>
 </div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
 
 @if (trains == null)
 {
@@ -86,15 +95,31 @@ else
 @code {
     private List<Train>? trains;
     private Train? trainToDelete;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        TrainClient.Changed += OnDataChanged;
         await LoadTrainsAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadTrainsAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        TrainClient.Changed -= OnDataChanged;
     }
 
     private async Task LoadTrainsAsync()
     {
-        trains = await TrainService.GetAllAsync();
+        trains = await TrainClient.GetAllAsync();
     }
 
     private void RequestDelete(Train t)
@@ -106,7 +131,11 @@ else
     {
         if (trainToDelete != null)
         {
-            await TrainService.DeleteAsync(trainToDelete.Id);
+            if (!await TrainClient.TryDeleteAsync(trainToDelete.Id))
+            {
+                errorMessage = "Цей запис уже видалено або він не існує.";
+            }
+
             trainToDelete = null;
             await LoadTrainsAsync();
         }

@@ -1,10 +1,10 @@
 @page "/tickets/edit/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITicketService TicketService
-@inject IPassengerService PassengerService
-@inject ITrainService TrainService
-@inject ICarriageTypeService CarriageTypeService
+@using SharpLab2.HubClients
+@inject ITicketHubClient TicketClient
+@inject IPassengerHubClient PassengerClient
+@inject ITrainHubClient TrainClient
+@inject ICarriageTypeHubClient CarriageTypeClient
 @inject NavigationManager Navigation
 
 <PageTitle>Редагування квитка - Резервування квитків</PageTitle>
@@ -22,6 +22,11 @@
                 }
                 else
                 {
+                    @if (errorMessage != null)
+                    {
+                        <div class="alert alert-warning">@errorMessage <a href="tickets">Повернутися до списку</a>.</div>
+                    }
+
                     <EditForm Model="ticket" OnValidSubmit="HandleValidSubmit">
                         <DataAnnotationsValidator />
                         <ValidationSummary class="alert alert-danger" />
@@ -136,19 +141,20 @@
     private List<Passenger>? passengers;
     private List<Train>? trains;
     private List<CarriageType>? carriageTypes;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
-        ticket = await TicketService.GetByIdAsync(Id);
+        ticket = await TicketClient.GetByIdAsync(Id);
         if (ticket == null)
         {
             Navigation.NavigateTo("tickets");
             return;
         }
 
-        passengers = await PassengerService.GetAllAsync();
-        trains = await TrainService.GetAllAsync();
-        carriageTypes = await CarriageTypeService.GetAllAsync();
+        passengers = await PassengerClient.GetAllAsync();
+        trains = await TrainClient.GetAllAsync();
+        carriageTypes = await CarriageTypeClient.GetAllAsync();
     }
 
     private decimal SelectedTrainBaseFare
@@ -175,7 +181,12 @@
     {
         if (ticket != null)
         {
-            await TicketService.UpdateAsync(ticket);
+            if (!await TicketClient.TryUpdateAsync(ticket))
+            {
+                errorMessage = "Не вдалося зберегти зміни: цей запис уже видалено або він не існує.";
+                return;
+            }
+
             Navigation.NavigateTo("tickets");
         }
     }

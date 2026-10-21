@@ -1,7 +1,7 @@
 @page "/passengers/details/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IPassengerService PassengerService
+@using SharpLab2.HubClients
+@inject IPassengerHubClient PassengerClient
 @inject NavigationManager Navigation
 
 <PageTitle>Деталі пасажира - Резервування квитків</PageTitle>
@@ -88,7 +88,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        passenger = await PassengerService.GetByIdAsync(Id);
+        passenger = await PassengerClient.GetByIdAsync(Id);
         if (passenger == null)
         {
             Navigation.NavigateTo("passengers");

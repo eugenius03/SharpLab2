@@ -1,7 +1,8 @@
 @page "/tickets"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject ITicketService TicketService
+@using SharpLab2.HubClients
+@inject ITicketHubClient TicketClient
+@implements IDisposable
 
 <PageTitle>Квитки - Резервування квитків</PageTitle>
 
@@ -21,6 +22,14 @@
         Всього квитків: <strong>@(FilteredTickets.Count)</strong> на суму <strong>@(FilteredTickets.Sum(t => t.GetTotalPrice()).ToString("F2")) грн</strong>
     </div>
 </div>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-warning alert-dismissible">
+        @errorMessage
+        <button type="button" class="btn-close" @onclick="() => errorMessage = null"></button>
+    </div>
+}
 
 @if (tickets == null)
 {
@@ -113,15 +122,31 @@ else
     private List<Ticket>? tickets;
     private string searchTerm = string.Empty;
     private Ticket? ticketToDelete;
+    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
+        TicketClient.Changed += OnDataChanged;
         await LoadTicketsAsync();
+    }
+
+    private void OnDataChanged()
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadTicketsAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        TicketClient.Changed -= OnDataChanged;
     }
 
     private async Task LoadTicketsAsync()
     {
-        tickets = await TicketService.GetAllAsync();
+        tickets = await TicketClient.GetAllAsync();
     }
 
     private List<Ticket> FilteredTickets =>
@@ -149,7 +174,11 @@ else
     {
         if (ticketToDelete != null)
         {
-            await TicketService.DeleteAsync(ticketToDelete.Id);
+            if (!await TicketClient.TryDeleteAsync(ticketToDelete.Id))
+            {
+                errorMessage = "Цей запис уже видалено або він не існує.";
+            }
+
             ticketToDelete = null;
             await LoadTicketsAsync();
         }

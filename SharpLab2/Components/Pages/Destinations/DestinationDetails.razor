@@ -1,7 +1,7 @@
 @page "/destinations/details/{id:int}"
 @using SharpLab2.Models
-@using SharpLab2.Services
-@inject IDestinationService DestinationService
+@using SharpLab2.HubClients
+@inject IDestinationHubClient DestinationClient
 @inject NavigationManager Navigation
 
 <PageTitle>Деталі пункту призначення - Резервування квитків</PageTitle>
@@ -81,7 +81,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        destination = await DestinationService.GetByIdAsync(Id);
+        destination = await DestinationClient.GetByIdAsync(Id);
         if (destination == null)
         {
             Navigation.NavigateTo("destinations");
