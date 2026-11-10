@@ -47,3 +47,5 @@ project.lock.json
 Thumbs.db
 Library/
 .aspnet/
+
+node_modules/

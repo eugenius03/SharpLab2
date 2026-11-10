@@ -10,4 +10,15 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.12" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Compile Remove="ClientApp\node_modules\**" />
+        <Content Remove="ClientApp\**" />
+        <None Include="ClientApp\**" Exclude="ClientApp\node_modules\**" />
+    </ItemGroup>
+
+    <Target Name="BuildClient" BeforeTargets="Build" Condition="Exists('ClientApp\package.json')">
+        <Exec Command="npm install" WorkingDirectory="ClientApp" Condition="!Exists('ClientApp\node_modules')" ContinueOnError="true" />
+        <Exec Command="npm run build" WorkingDirectory="ClientApp" ContinueOnError="true" />
+    </Target>
+
 </Project>

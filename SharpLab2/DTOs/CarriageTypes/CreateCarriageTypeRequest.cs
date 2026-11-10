@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.CarriageTypes;
 
 public record CreateCarriageTypeRequest(
-    [Required] [MaxLength(50)] string TypeName,
-    [Range(0, 10000)] decimal Surcharge
+    [Required(ErrorMessage = "Вкажіть назву типу вагона.")] [MaxLength(50)] string TypeName,
+    [Range(0, 100000, ErrorMessage = "Надбавка не може бути від'ємною.")] decimal Surcharge
 );

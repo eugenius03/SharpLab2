@@ -1,4 +1,4 @@
-namespace SharpLab2.DTOs;
+namespace SharpLab2.DTOs.Destinations;
 
 public record DestinationResponse(
     int Id,

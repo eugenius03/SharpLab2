@@ -5,7 +5,6 @@ using SharpLab2.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddRazorPages();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -33,10 +32,10 @@ using (var scope = app.Services.CreateScope())
     initializer.Initialize();
 }
 
+app.UseDefaultFiles();
 app.UseStaticFiles();
 app.UseRouting();
 
-app.MapRazorPages();
 app.MapControllers();
 
 app.Run();
